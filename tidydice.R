@@ -60,6 +60,9 @@ flip_coin <- function(times = 1, rounds = 1, success = c(2), agg = FALSE, sides 
 ## examples
 ##############################################################################
 
+# reproducible random numbers
+set.seed(123)
+
 # rolling a dice 10 times
 roll_dice(10)
 
