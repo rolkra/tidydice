@@ -11,6 +11,11 @@ library(explore)
 
 roll_dice <- function(times = 1, rounds = 1, success = c(6), agg = FALSE, sides = 6, prob = NULL)  {
 
+  # check if possible
+  stopifnot(times >= 0)
+  stopifnot(rounds >= 1)
+  stopifnot(sides >= 2)
+  
   # create empty tibble
   result <- tibble(round = integer(), nr = integer(), result = integer())
   
@@ -41,6 +46,13 @@ roll_dice <- function(times = 1, rounds = 1, success = c(6), agg = FALSE, sides 
 ##############################################################################
 
 flip_coin <- function(times = 1, rounds = 1, success = c(2), agg = FALSE, sides = 2, prob = NULL)  {
+  
+  # check if possible
+  stopifnot(times >= 0)
+  stopifnot(rounds >= 1)
+  stopifnot(sides == 2)
+  
+  # coin = dice with 2 sides
   roll_dice(times, rounds, success, agg, sides, prob)  
 }
   
