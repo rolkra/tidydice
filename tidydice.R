@@ -20,12 +20,14 @@ roll_dice <- function(times = 1, rounds = 1, success = c(6), agg = FALSE, sides 
   result <- tibble(round = integer(), nr = integer(), result = integer())
   
   # roll the dice: rounds x times
-  for(i in 1:rounds)  {
-    w <- sample(1:sides, times, replace = TRUE, prob = prob)
-    t <- tibble(nr = seq_along(w), result = w, round = i)
-    result <- bind_rows(result, t)      
-  }
+  result <- 1:rounds %>% 
+    map(~sample(x = 1:sides, size = times, replace = TRUE, prob = prob)) %>% 
+    map_df(as_tibble)
   
+  names(result) <- "result"
+  result$round <- rep(1:rounds, each = times)
+  result$nr <- rep(1:times, times = rounds)
+
   # determine success
   result <- result %>% 
     mutate(success = ifelse(result %in% success, TRUE, FALSE))
@@ -36,7 +38,7 @@ roll_dice <- function(times = 1, rounds = 1, success = c(6), agg = FALSE, sides 
       group_by(round) %>% 
       summarise(n = n(), success_sum = sum(success))
   } else {
-    result
+    result %>% select(round, nr, result, success)
   }
   
 } # roll_dice
@@ -71,9 +73,4 @@ data <- roll_dice(60, rounds = 1000, agg = TRUE)
 data %>% describe(success_sum)
 data %>% explore(success_sum)
 
-# how likely is it to get at least 20 six
-data %>% 
-  mutate(check = ifelse(success_sum >= 20, 1, 0)) %>% 
-  summarise(prop = 100.0 * sum(check)/ n())
-
-
+data %>% ggplot(aes(success_sum)) + geom_bar()
