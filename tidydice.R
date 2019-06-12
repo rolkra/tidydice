@@ -16,18 +16,12 @@ roll_dice <- function(times = 1, rounds = 1, success = c(6), agg = FALSE, sides 
   stopifnot(rounds >= 1)
   stopifnot(sides >= 2)
   
-  # create empty tibble
-  result <- tibble(round = integer(), nr = integer(), result = integer())
-  
   # roll the dice: rounds x times
-  result <- 1:rounds %>% 
-    map(~sample(x = 1:sides, size = times, replace = TRUE, prob = prob)) %>% 
-    map_df(as_tibble)
+  result <- tibble(round = rep(1:rounds, each = times),
+                   nr = rep(1:times, times = rounds),
+                   result = sample(x = 1:sides, size = rounds * times, replace = TRUE, prob = prob)
+                   )
   
-  names(result) <- "result"
-  result$round <- rep(1:rounds, each = times)
-  result$nr <- rep(1:times, times = rounds)
-
   # determine success
   result <- result %>% 
     mutate(success = ifelse(result %in% success, TRUE, FALSE))
@@ -38,7 +32,7 @@ roll_dice <- function(times = 1, rounds = 1, success = c(6), agg = FALSE, sides 
       group_by(round) %>% 
       summarise(n = n(), success_sum = sum(success))
   } else {
-    result %>% select(round, nr, result, success)
+    result
   }
   
 } # roll_dice
@@ -73,4 +67,7 @@ data <- roll_dice(60, rounds = 1000, agg = TRUE)
 data %>% describe(success_sum)
 data %>% explore(success_sum)
 
-data %>% ggplot(aes(success_sum)) + geom_bar()
+data %>% 
+  ggplot(aes(success_sum)) + 
+  geom_bar() +
+  theme_minimal()
