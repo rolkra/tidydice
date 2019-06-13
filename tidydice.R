@@ -67,7 +67,18 @@ data <- roll_dice(60, rounds = 1000, agg = TRUE)
 data %>% describe(success_sum)
 data %>% explore(success_sum)
 
+# plot absolute
 data %>% 
   ggplot(aes(success_sum)) + 
   geom_bar() +
-  theme_minimal()
+  theme_minimal
+
+# plot percentate
+data %>% 
+  ggplot(aes(success_sum)) + 
+  geom_bar(aes(y = (..count..)/sum(..count..)*100.0)) +
+  theme_minimal() +
+  labs(y = "percent")
+
+
+
