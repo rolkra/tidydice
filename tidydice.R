@@ -64,14 +64,14 @@ roll_dice(10)
 
 # rolling a dice 60 times, repeat it 1000 rounds
 data <- roll_dice(60, rounds = 1000, agg = TRUE)
-data %>% describe(success_sum)
 data %>% explore(success_sum)
+data %>% describe(success_sum)
 
 # plot absolute
 data %>% 
   ggplot(aes(success_sum)) + 
   geom_bar() +
-  theme_minimal
+  theme_minimal()
 
 # plot percentate
 data %>% 
@@ -80,5 +80,15 @@ data %>%
   theme_minimal() +
   labs(y = "percent")
 
+# plot percentate + label
+ggplot(data, aes(x = success_sum)) +
+  geom_bar(aes(y = (..count..)/sum(..count..)*100.0)) +
+  geom_text(aes(y = ((..count..)/sum(..count..)*100.0), 
+                label = ((..count..)/sum(..count..)*100.0)),
+            stat = "count", 
+            vjust = -0.30, 
+            size = 2) +
+  theme_minimal() +
+  labs(y = "percent")
 
 
