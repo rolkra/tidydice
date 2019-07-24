@@ -61,6 +61,38 @@ flip_coin <- function(times = 1, rounds = 1, success = c(2), agg = FALSE, sides 
 }
 
 ##############################################################################
+## plot_success
+##############################################################################
+
+plot_success <- function(data, title = "", color = "#cccccc", label = TRUE, label_size = 2)  {
+
+    p <- ggplot(data, aes(x = success)) +
+           geom_bar(aes(y = (..count..)/sum(..count..)*100.0),
+                    fill = color) +
+           theme_minimal() +
+           labs(y = "percent")
+    
+    if (length(unique(data$success)) <= 30 & label)  {
+       p <- p + geom_text(aes(y = ((..count..)/sum(..count..)*100.0),
+                          label = formatC((..count..)/sum(..count..)*100.0, format = "f", digits = 1)),
+                          stat = "count",
+                          vjust = +0.30,
+                          size = label_size)
+    } # if
+    
+    if (nchar(title) > 0)  {
+      
+      p <- p + ggtitle(title)
+      
+    }
+
+    # plot result
+    p
+    
+} # plot_success
+
+
+##############################################################################
 ## examples
 ##############################################################################
 
