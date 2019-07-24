@@ -117,26 +117,15 @@ data <- roll_dice(60, rounds = 1000, agg = TRUE)
 data %>% explore(success, auto_scale = FALSE)
 data %>% describe(success)
 
-# plot absolute
-data %>%
-  ggplot(aes(success)) +
-  geom_bar() +
-  theme_minimal()
+# plot success
+roll_dice(60, rounds = 1000, agg = FALSE) %>% 
+  plot_success(label_size = 3, title = "Experiment")
 
-# plot percentate
-data %>%
-  ggplot(aes(success)) +
-  geom_bar(aes(y = (..count..)/sum(..count..)*100.0)) +
-  theme_minimal() +
-  labs(y = "percent")
+roll_dice(60, rounds = 1000, agg = TRUE) %>% 
+  plot_success(label_size = 2)
 
-# plot percentate + label
-ggplot(data, aes(x = success)) +
-  geom_bar(aes(y = (..count..)/sum(..count..)*100.0)) +
-  geom_text(aes(y = ((..count..)/sum(..count..)*100.0),
-                label = ((..count..)/sum(..count..)*100.0)),
-            stat = "count",
-            vjust = -0.30,
-            size = 2) +
-  theme_minimal() +
-  labs(y = "percent")
+roll_dice(100, rounds = 1000, agg = TRUE) %>% 
+  plot_success()
+
+flip_coin(60, rounds = 1000, agg = FALSE) %>% 
+  plot_success(label_size = 3, title = "Experiment")
