@@ -10,31 +10,39 @@ library(explore)
 ##############################################################################
 
 roll_dice <- function(times = 1, rounds = 1, success = c(6), agg = FALSE, sides = 6, prob = NULL)  {
-
+  
   # check if possible
   stopifnot(times >= 0)
   stopifnot(rounds >= 1)
   stopifnot(sides >= 2)
 
-  # roll the dice: rounds x times
-  result <- tibble(round = rep(1:rounds, each = times),
-                   nr = rep(1:times, times = rounds),
-                   result = sample(x = 1:sides, size = rounds * times, replace = TRUE, prob = prob)
-                   )
-
-  # determine success
-  result <- result %>%
-    mutate(success = ifelse(result %in% success, TRUE, FALSE))
-
-   # final result
   if (agg)  {
-    result %>%
-      group_by(round) %>%
-      summarise(times = n(), success = sum(success))
-  } else {
-    result
-  }
-
+    
+    # roll dice and aggregate result
+    rounds_seq <- 1:rounds
+    success <- map_int(rounds_seq, ~sum(sample(x = 1:sides, size = times, replace = TRUE, prob = prob) %in% success))
+    
+    # create result tibble
+    result <- tibble(round = rounds_seq,
+                     times = rep(times, rounds),
+                     success = success)
+    
+  } else { 
+    
+    # roll the dice: rounds x times
+    result <- tibble(round = rep(1:rounds, each = times),
+                     nr = rep(1:times, times = rounds),
+                     result = sample(x = 1:sides, size = rounds * times, replace = TRUE, prob = prob)
+    )
+    
+    # determine success
+    result <- result %>%
+      mutate(success = ifelse(result %in% success, TRUE, FALSE))
+    
+  } # if agg
+  
+  result
+  
 } # roll_dice
 
 ##############################################################################
