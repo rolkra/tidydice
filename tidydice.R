@@ -76,7 +76,7 @@ plot_success <- function(data, title = "", color = "#cccccc", label = TRUE, labe
        p <- p + geom_text(aes(y = ((..count..)/sum(..count..)*100.0),
                           label = formatC((..count..)/sum(..count..)*100.0, format = "f", digits = 1)),
                           stat = "count",
-                          vjust = +0.30,
+                          vjust = 1,
                           size = label_size)
     } # if
     
