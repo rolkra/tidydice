@@ -9,13 +9,13 @@ library(explore)
 ## roll_dice
 ##############################################################################
 
-roll_dice <- function(times = 1, rounds = 1, success = c(6), agg = FALSE, sides = 6, prob = NULL)  {
+roll_dice <- function(data, times = 1, rounds = 1, success = c(6), agg = FALSE, sides = 6, prob = NULL)  {
   
   # check if possible
   stopifnot(times >= 0)
   stopifnot(rounds >= 1)
   stopifnot(sides >= 2)
-
+  
   if (agg)  {
     
     # roll dice and aggregate result
@@ -41,7 +41,31 @@ roll_dice <- function(times = 1, rounds = 1, success = c(6), agg = FALSE, sides 
     
   } # if agg
   
-  result
+  if (missing(data))  {
+  
+    # result of roll_dice (first experiment)
+    result <- result %>% 
+      mutate(experiment = 1) %>% 
+      select(experiment, everything())
+    result
+    
+  } else {
+    
+    # existing experiment variable?
+    if ("experiment" %in% names(data)) {
+      max_experiment <- max(data$experiment)
+    } else {
+      data$experiment <- 1
+    }
+    
+    # new experiment (+1)
+    result$experiment <- max_experiment + 1
+    
+    # bind result to data (pipe)
+    result <- bind_rows(data, result) %>% 
+      select(experiment, everything())
+    result
+  }
   
 } # roll_dice
 
@@ -50,12 +74,12 @@ roll_dice <- function(times = 1, rounds = 1, success = c(6), agg = FALSE, sides 
 ##############################################################################
 
 flip_coin <- function(times = 1, rounds = 1, success = c(2), agg = FALSE, sides = 2, prob = NULL)  {
-
+  
   # check if possible
   stopifnot(times >= 0)
   stopifnot(rounds >= 1)
   stopifnot(sides == 2)
-
+  
   # coin = dice with 2 sides
   roll_dice(times, rounds, success, agg, sides, prob)
 }
@@ -64,31 +88,62 @@ flip_coin <- function(times = 1, rounds = 1, success = c(2), agg = FALSE, sides 
 ## plot_success
 ##############################################################################
 
-plot_success <- function(data, title = "", color = "#cccccc", label = TRUE, label_size = 2)  {
-
-    p <- ggplot(data, aes(x = success)) +
-           geom_bar(aes(y = (..count..)/sum(..count..)*100.0),
-                    fill = color) +
-           theme_minimal() +
-           labs(y = "percent")
-    
-    if (length(unique(data$success)) <= 30 & label)  {
-       p <- p + geom_text(aes(y = ((..count..)/sum(..count..)*100.0),
-                          label = formatC((..count..)/sum(..count..)*100.0, format = "f", digits = 1)),
-                          stat = "count",
-                          vjust = 1,
-                          size = label_size)
-    } # if
-    
-    if (nchar(title) > 0)  {
-      
-      p <- p + ggtitle(title)
-      
+plot_success <- function(data, title = "", label, label_size = 2)  {
+  
+  # if no label parameter, decide on
+  # number of bars to be plotted
+  bars <- length(unique(data$success)) * max(data$experiment)
+  if (missing(label)) {
+    if (bars <= 20)  {
+       label <- TRUE
+    } else {
+       label <- FALSE
     }
-
-    # plot result
-    p
+  }
+  
+  # use a factor for experiment so that fill works
+  data$experiment <- factor(data$experiment)
+  
+  data_experiment <- data %>% 
+    group_by(experiment) %>% 
+    summarise(experiment_n = n())
+  
+  data_success <- data %>% 
+    group_by(experiment, success) %>% 
+    summarise(success_sum = sum(success),
+              n = n())
+  
+  data_bar <- data_success %>% 
+    inner_join(data_experiment, by = "experiment") %>% 
+    mutate(pct = n / experiment_n * 100.0)
+  
+  #data_bar$success <- factor(data_bar$success)
+  
+  p <- ggplot(data_bar, aes(x = success)) +
+    geom_col(aes(y = pct, fill = experiment), position = "dodge") +
+    theme_minimal() +
+    labs(y = "percent")
+  
+  # plot labels?
+  if (label == TRUE)  {
+    p <- p + geom_text(aes(y = pct, 
+                           label = pct,
+                           group = experiment),
+                      #     label = formatC(success_pct, format = "f", digits = 1)),
+                       position = position_dodge(width = 1),
+                       vjust = 1,
+                       size = label_size)
+  } # if
+  
+  if (nchar(title) > 0)  {
     
+    p <- p + ggtitle(title)
+    
+  }
+  
+  # plot result
+  p
+  
 } # plot_success
 
 
@@ -99,33 +154,32 @@ plot_success <- function(data, title = "", color = "#cccccc", label = TRUE, labe
 # reproducible random numbers
 set.seed(123)
 
-# rolling a dice 10 times
-roll_dice(10)
-
 # rolling a dice 60 times
-roll_dice(60) %>% explore(result)
+d <- roll_dice(times = 60)
+d %>% describe(result)
+d %>% describe(success)
+d %>% plot_success()
 
-# rolling a dice 60 times, repeat it 100 rounds
-roll_dice(60, rounds = 100) %>% explore(result)
+# compare rolling a dice 10 times and then 20 times
+roll_dice(times = 10, agg = TRUE) %>% 
+  roll_dice(times = 20, agg = TRUE) 
 
-# rolling an unfair dice 60 times, repeat it 100 rounds
-roll_dice(60, rounds = 100, prob = c(1/12,1/6,1/6,1/6,1/6,1/6+1/12)) %>%
-  explore(result)
+# adding a title
+roll_dice(times = 10, agg = TRUE) %>% 
+  roll_dice(times = 20, agg = TRUE) %>% 
+  plot_success(title = "Dice 10x vs 20x")
 
-# rolling a dice 60 times, repeat it 1000 rounds
-data <- roll_dice(60, rounds = 1000, agg = TRUE)
-data %>% explore(success, auto_scale = FALSE)
-data %>% describe(success)
+# comparing 3 experiments
 
-# plot success
-roll_dice(60, rounds = 1000, agg = FALSE) %>% 
-  plot_success(label_size = 3, title = "Experiment")
-
-roll_dice(60, rounds = 1000, agg = TRUE) %>% 
-  plot_success(label_size = 2)
-
-roll_dice(100, rounds = 1000, agg = TRUE) %>% 
+roll_dice(times = 60, rounds = 10000, agg = TRUE) %>% 
+  roll_dice(times = 70, rounds = 10000, agg = TRUE) %>% 
+  roll_dice(times = 100, rounds = 10000, agg = TRUE) %>% 
   plot_success()
 
-flip_coin(60, rounds = 1000, agg = FALSE) %>% 
-  plot_success(label_size = 3, title = "Experiment")
+# rolling a dice 60 times, repeat it 100 rounds
+roll_dice(times = 60, rounds = 100) %>% 
+  describe(result)
+
+# rolling an unfair dice 60 times, repeat it 100 rounds
+roll_dice(times = 60, rounds = 100, prob = c(1/12,1/6,1/6,1/6,1/6,1/6+1/12)) %>%
+  explore(result)
