@@ -16,7 +16,7 @@ library(explore)
 #' @param success Which result is a success (default = 6)
 #' @param agg If TRUE, the result is aggregated (by experiment, rounds)
 #' @param sides Number of sides of the dice (default = 6)
-#' @param prob Vector of probability for each side of the dice
+#' @param prob Vector of probabilities for each side of the dice
 #' @return Result of experiment as a tibble
 #' @examples
 #' # rolling a dice once
@@ -108,7 +108,7 @@ roll_dice <- function(data, times = 1, rounds = 1, success = c(6), agg = FALSE, 
 #' @param success Which result is a success (default = 2)
 #' @param agg If TRUE, the result is aggregated (by experiment, rounds)
 #' @param sides Number of sides of the coin (default = 2)
-#' @param prob Vector of probability for each side of the coin
+#' @param prob Vector of probabilities for each side of the coin
 #' @return Result of experiment as a tibble
 #' @examples
 #' # flipping a coin
