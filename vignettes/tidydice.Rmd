@@ -16,9 +16,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-A basic understanding of probability and statistics is crucial for data understanding. A great way to teach is to start with an experiment, like rolling a dice or flipping a coin.
+### Motivation
 
-This package simulates rolling a dice and flipping a coin generating tidy data.
+A basic understanding of probability and statistics is crucial for data understanding. A great way to teach probability and statistics is to start with an experiment, like rolling a dice or flipping a coin.
+
+This package simulates rolling a dice and flipping a coin. Each experiment generates a tibble. Experiments can be combined with the pipe-operator.
 
 tidydice package on Github: [https://github.com/rolkra/tidydice](https://github.com/rolkra/tidydice)
 
@@ -41,7 +43,36 @@ set.seed(123)
 roll_dice()
 ```
 
-The result is 2, so it is no success (as only 6 is predefined as success)
+Success is defined as result = 6 (as default), while result = 1..5 is not a success. In this case the result is 2, so it is no success.
+
+#### Define success
+
+If we would define result = 2 and result = 6 as success, it would be treated as success.
+
+```{R echo=TRUE}
+set.seed(123)
+roll_dice(success = c(2,6))
+```
+
+#### Unfair dice
+
+As default, the dice is fair. So every result (0..6) has the same probability. If you want, you can change this.
+
+```{R echo=TRUE}
+set.seed(123)
+roll_dice(prob = c(0,0,0,0,0,1))
+```
+
+In this case we created a dice that always gets result = 6 (with 100% probability)
+
+#### Untypically dice
+
+As default the dice has 6 sides. If you want you can change this. Here we use a dice with 12 sides. result now can have a value between 1 and 12. But result = 6 is still the default success.
+
+```{R echo=TRUE}
+set.seed(123)
+roll_dice(sides = 12)
+```
 
 #### Roll a dice 4 times
 
@@ -63,7 +94,7 @@ In the first round we got 1 success, in the secound round 2 success.
 
 #### Use agg
 
-A convenient way to aggregate the result, is to use the agg parameter
+A convenient way to aggregate the result, is to use the agg parameter. Now we get one line per round.
 
 ```{R echo=TRUE}
 set.seed(123)
@@ -87,12 +118,12 @@ If we increase the times parameter to 10000, the results are more balanced.
 ```{R echo=TRUE}
 set.seed(123)
 roll_dice(times = 10000) %>% 
-  explore(result, title = "Rolling a dice 100x")
+  explore(result, title = "Rolling a dice 10000x")
 ```
 
 #### Visualise success
 
-If we repeat the experiment (rolling a dice 100x) with rounds = 100, we get the distribution with a peak at about 17 (16.67 is the expected value)
+If we repeat the experiment rolling a dice 100x with rounds = 100, we get the distribution with a peak at about 17 (16.67 is the expected value)
 
 ```{R echo=TRUE}
 set.seed(123)
@@ -112,7 +143,7 @@ roll_dice(times = 100, rounds = 10000, agg = TRUE) %>%
           auto_scale = FALSE)
 ```
 
-### Combine experiments
+#### Combine experiments
 
 Let's add an experiment, where you have 10 extra dice. The shape changes.
 
@@ -122,7 +153,7 @@ roll_dice(times = 100, rounds = 10000, agg = TRUE) %>%
   roll_dice(times = 110, rounds = 10000, agg = TRUE) %>% 
   explore(success, 
           target = experiment,
-          title = "Rolling a dice 100x / 110x",
+          title = "Rolling a dice 100/110x",
           auto_scale = FALSE)
 ```
 
@@ -137,6 +168,51 @@ roll_dice(times = 100, rounds = 10000, agg = TRUE) %>%
   roll_dice(times = 150, rounds = 10000, agg = TRUE) %>% 
   explore(success, 
           target = experiment,
-          title = "Rolling a dice 100x / 110x / 150x",
+          title = "Rolling a dice 100/110/150x",
           auto_scale = FALSE)
 ```
+
+### Flip a coin
+
+Internally the package handles coins as dice with only two sides. Success is defined as result = 2 (as default), while result = 1 is not a success.
+
+#### Flip a coin 10x
+
+```{R echo=TRUE}
+set.seed(123)
+flip_coin(times = 10)
+```
+
+In this case the result are 6x 2 and 4x 1. We can use the describe() function of the explore-package to get a good overview.
+
+```{R echo=TRUE}
+set.seed(123)
+flip_coin(times = 10) %>% 
+  describe(success)
+```
+
+Or just use the agg-parameter
+
+```{R echo=TRUE}
+set.seed(123)
+flip_coin(times = 10, agg = TRUE)
+```
+
+### Define rounds
+
+The parameter rounds can be used like in roll_dice().
+
+```{R echo=TRUE}
+set.seed(123)
+flip_coin(times = 10, rounds = 5) %>% 
+  explore(success, target = round)
+```
+
+#### Combine experiments
+
+```{R echo=TRUE}
+set.seed(123)
+flip_coin(times = 10, agg = TRUE) %>% 
+  flip_coin(times = 15, agg = TRUE)
+```
+
