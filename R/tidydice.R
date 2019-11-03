@@ -31,15 +31,26 @@
 #'   roll_dice(times = 12, rounds = 3, agg = TRUE) 
 #' @export
 
-roll_dice <- function(data, times = 1, rounds = 1, success = c(6), agg = FALSE, sides = 6, prob = NULL)  {
+roll_dice <- function(data = NULL, times = 1, rounds = 1, success = c(6), agg = FALSE, sides = 6, prob = NULL)  {
   
   # check if possible
-  stopifnot(times >= 0)
-  stopifnot(rounds >= 1)
-  stopifnot(sides >= 2)
+  assertthat::assert_that(times > 0)
+  assertthat::assert_that(rounds > 0)
+  assertthat::assert_that(sides > 0)
+  
+  # make sure that parameters are integer
+  times <- floor(times)
+  rounds <- floor(rounds)
+  success <- floor(success)
+  
+  # check if first parameter is times instead of data
+  if (!missing(data) & is.numeric(data))  {
+    times <- data
+    data <- NULL
+  }
   
   # definition to pass CRAN test
-  experiment <- 0
+  experiment <- 0L
   
   if (agg)  {
     
@@ -48,16 +59,16 @@ roll_dice <- function(data, times = 1, rounds = 1, success = c(6), agg = FALSE, 
     success <- purrr::map_int(rounds_seq, ~sum(sample(x = 1:sides, size = times, replace = TRUE, prob = prob) %in% success))
     
     # create result tibble
-    result <- tibble::tibble(round = rounds_seq,
-                             times = rep(times, rounds),
-                             success = success)
+    result <- tibble::tibble(round = as.integer(rounds_seq),
+                             times = as.integer(rep(times, rounds)),
+                             success = as.integer(success))
     
   } else { 
     
     # roll the dice: rounds x times
-    result <- tibble::tibble(round = rep(1:rounds, each = times),
-                             nr = rep(1:times, times = rounds),
-                             result = sample(x = 1:sides, size = rounds * times, replace = TRUE, prob = prob)
+    result <- tibble::tibble(round = as.integer(rep(1:rounds, each = times)),
+                             nr = as.integer(rep(1:times, times = rounds)),
+                             result = as.integer(sample(x = 1:sides, size = rounds * times, replace = TRUE, prob = prob))
     )
     
     # determine success
@@ -70,20 +81,21 @@ roll_dice <- function(data, times = 1, rounds = 1, success = c(6), agg = FALSE, 
     
     # result of roll_dice (first experiment)
     result <- result %>% 
-      dplyr::mutate(experiment = 1) %>% 
+      dplyr::mutate(experiment = as.integer(1)) %>% 
       dplyr::select(experiment, dplyr::everything())
     result
     
   } else {
     
     # existing experiment variable?
-    max_experiment <- 1
+    max_experiment <- 1L
     if ("experiment" %in% names(data)) {
       max_experiment <- max(data$experiment)
     }
     
     # new experiment (+1)
-    result$experiment <- max_experiment + 1
+    result <- result %>% 
+      dplyr::mutate(experiment = as.integer(max_experiment + 1))
     
     # bind result to data (pipe)
     result <- dplyr::bind_rows(data, result) %>% 
@@ -125,12 +137,7 @@ roll_dice <- function(data, times = 1, rounds = 1, success = c(6), agg = FALSE, 
 #'   flip_coin(times = 12, rounds = 3, agg = TRUE) 
 #' @export
 
-flip_coin <- function(data, times = 1, rounds = 1, success = c(2), agg = FALSE, sides = 2, prob = NULL)  {
-  
-  # check if possible
-  stopifnot(times >= 0)
-  stopifnot(rounds >= 1)
-  stopifnot(sides == 2)
+flip_coin <- function(data = NULL, times = 1, rounds = 1, success = c(2), agg = FALSE, sides = 2, prob = NULL)  {
   
   # coin = dice with 2 sides
   roll_dice(data = data,
