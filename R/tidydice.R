@@ -10,6 +10,7 @@
 #' @param agg If TRUE, the result is aggregated (by experiment, rounds)
 #' @param sides Number of sides of the dice (default = 6)
 #' @param prob Vector of probabilities for each side of the dice
+#' @param seed Seed to produce reproducible results
 #' @return Result of experiment as a tibble
 #' @importFrom magrittr "%>%"
 #' @examples
@@ -31,13 +32,20 @@
 #'   roll_dice(times = 12, rounds = 3, agg = TRUE) 
 #' @export
 
-roll_dice <- function(data = NULL, times = 1, rounds = 1, success = c(6), agg = FALSE, sides = 6, prob = NULL)  {
+roll_dice <- function(data = NULL, times = 1, rounds = 1, success = c(6), agg = FALSE, sides = 6, prob = NULL, seed = NULL)  {
   
-  # check if possible
-  assertthat::assert_that(times > 0)
-  assertthat::assert_that(rounds > 0)
-  assertthat::assert_that(sides > 0)
-  
+  # check if meaningful parameters
+  assertthat::assert_that(is.numeric(times), msg = "times must be numeric")
+  assertthat::assert_that(is.numeric(rounds),msg = "rounds must be numeric")
+  assertthat::assert_that(is.numeric(sides), msg = "sides must be numeric")
+  assertthat::assert_that(is.logical(agg),   msg = "agg must be logical")
+  assertthat::assert_that(length(times) == 1)
+  assertthat::assert_that(length(rounds) == 1)
+  assertthat::assert_that(length(sides) == 1)
+  assertthat::assert_that(times > 0,         msg = "times must be greater than 0")
+  assertthat::assert_that(rounds > 0,        msg = "rounds must be greater than 0")
+  assertthat::assert_that(sides > 0,         msg = "sides must be greater than 0")
+
   # make sure that parameters are integer
   times <- floor(times)
   rounds <- floor(rounds)
@@ -47,8 +55,14 @@ roll_dice <- function(data = NULL, times = 1, rounds = 1, success = c(6), agg = 
   if (!missing(data) & is.numeric(data))  {
     times <- data
     data <- NULL
+    assertthat::assert_that(times > 0)
   }
-  
+
+  # check seed parameter
+  if (!missing(seed)) {
+    set.seed(seed)
+  }
+
   # definition to pass CRAN test
   experiment <- 0L
   
@@ -88,7 +102,7 @@ roll_dice <- function(data = NULL, times = 1, rounds = 1, success = c(6), agg = 
   } else {
     
     # existing experiment variable?
-    max_experiment <- 1L
+    max_experiment <- 0L
     if ("experiment" %in% names(data)) {
       max_experiment <- max(data$experiment)
     }
@@ -117,6 +131,7 @@ roll_dice <- function(data = NULL, times = 1, rounds = 1, success = c(6), agg = 
 #' @param agg If TRUE, the result is aggregated (by experiment, rounds)
 #' @param sides Number of sides of the coin (default = 2)
 #' @param prob Vector of probabilities for each side of the coin
+#' @param seed Seed to produce reproducible results
 #' @return Result of experiment as a tibble
 #' @examples
 #' # flipping a coin
@@ -137,8 +152,8 @@ roll_dice <- function(data = NULL, times = 1, rounds = 1, success = c(6), agg = 
 #'   flip_coin(times = 12, rounds = 3, agg = TRUE) 
 #' @export
 
-flip_coin <- function(data = NULL, times = 1, rounds = 1, success = c(2), agg = FALSE, sides = 2, prob = NULL)  {
-  
+flip_coin <- function(data = NULL, times = 1, rounds = 1, success = c(2), agg = FALSE, sides = 2, prob = NULL, seed = NULL)  {
+
   # coin = dice with 2 sides
   roll_dice(data = data,
             times = times, 
@@ -146,6 +161,7 @@ flip_coin <- function(data = NULL, times = 1, rounds = 1, success = c(2), agg = 
             success = success, 
             agg = agg, 
             sides = sides, 
-            prob = prob)
+            prob = prob,
+            seed = seed)
 }
 

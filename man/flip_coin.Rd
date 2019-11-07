@@ -4,8 +4,8 @@
 \alias{flip_coin}
 \title{Simulating flipping a coin. The result is returned as a tibble.}
 \usage{
-flip_coin(data, times = 1, rounds = 1, success = c(2), agg = FALSE,
-  sides = 2, prob = NULL)
+flip_coin(data = NULL, times = 1, rounds = 1, success = c(2),
+  agg = FALSE, sides = 2, prob = NULL, seed = NULL)
 }
 \arguments{
 \item{data}{Data from a previous experiment}
@@ -21,6 +21,8 @@ flip_coin(data, times = 1, rounds = 1, success = c(2), agg = FALSE,
 \item{sides}{Number of sides of the coin (default = 2)}
 
 \item{prob}{Vector of probabilities for each side of the coin}
+
+\item{seed}{Seed to produce reproducible results}
 }
 \value{
 Result of experiment as a tibble

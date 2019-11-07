@@ -16,17 +16,17 @@ knitr::opts_chunk$set(
 )
 ```
 
-### Motivation
+### Introduction
 
-A basic understanding of probability and statistics is crucial for data understanding. A great way to teach probability and statistics is to start with an experiment, like rolling a dice or flipping a coin.
+A basic understanding of probability and statistics is crucial for data understanding and discovery of meaningful patterns. A great way to teach probability and statistics is to start with an experiment, like rolling a dice or flipping a coin.
 
-This package simulates rolling a dice and flipping a coin. Each experiment generates a tibble. Experiments can be combined with the pipe-operator.
+This package simulates rolling a dice and flipping a coin. Each experiment generates a tibble. Dice rolls and coin flips are simulated using sample(). The properties of the dice can be changed, like the number of sides. A Coin flip is simulated using a two sided dice. Experiments can be combined with the pipe-operator.
 
 tidydice package on Github: [https://github.com/rolkra/tidydice](https://github.com/rolkra/tidydice)
 
 ### Setup
 
-As the tidydice-functions fits well into the tidyverse, we load the dplyr-package. For quick visualisations we use the explore-package.
+As the tidydice-functions fits well into the tidyverse, we load the dplyr-package. For quick visualisations we use the explore-package. To create more flexible graphics, use ggplot2.
 
 ```{r message=FALSE, warning=FALSE}
 library(tidydice)
@@ -37,6 +37,8 @@ library(explore)
 ### Roll a dice
 
 #### Roll a dice once
+
+The output of roll_dice() is a tibble. Each row represents a dice roll. Without parameters, a dice is rolled once. 
 
 ```{R echo=TRUE}
 set.seed(123)
@@ -81,7 +83,7 @@ set.seed(123)
 roll_dice(times = 4)
 ```
 
-We got 1 success
+We get 1 success
 
 #### Define rounds
 
@@ -90,7 +92,7 @@ set.seed(123)
 roll_dice(times = 4, rounds = 2)
 ```
 
-In the first round we got 1 success, in the secound round 2 success.
+Rolling the dice 4 times is repeated. In the first round we got 1 success, in the secound round 2 success.
 
 #### Use agg
 
@@ -100,6 +102,17 @@ A convenient way to aggregate the result, is to use the agg parameter. Now we ge
 set.seed(123)
 roll_dice(times = 4, rounds = 2, agg = TRUE)
 ```
+
+You can aggregate by hand too using dplyr.
+
+```{R echo=TRUE}
+set.seed(123)
+roll_dice(times = 4, rounds = 2) %>% 
+  group_by(experiment, round) %>% 
+  summarise(times = n(),
+            success = sum(success))
+```
+
 
 #### Visualise result
 
@@ -143,9 +156,18 @@ roll_dice(times = 100, rounds = 10000, agg = TRUE) %>%
           auto_scale = FALSE)
 ```
 
+```{R echo=TRUE}
+set.seed(123)
+roll_dice(times = 100, rounds = 10000, agg = TRUE) %>% 
+  mutate(check = ifelse(success < 5 | success > 30, 1, 0)) %>% 
+  count(check)
+```
+
+In only 4 of 10000 cases success is below 5 or above 30. So the probability to get this result is very low.
+
 #### Combine experiments
 
-Let's add an experiment, where you have 10 extra dice. The shape changes.
+Let's add an experiment, where you have 10 extra dice. The shape of the distribution changes.
 
 ```{R echo=TRUE}
 set.seed(123)
@@ -198,14 +220,13 @@ set.seed(123)
 flip_coin(times = 10, agg = TRUE)
 ```
 
-### Define rounds
+#### Define rounds
 
 The parameter rounds can be used like in roll_dice().
 
 ```{R echo=TRUE}
 set.seed(123)
-flip_coin(times = 10, rounds = 5) %>% 
-  explore(success, target = round)
+flip_coin(times = 10, rounds = 4, agg = TRUE)
 ```
 
 #### Combine experiments

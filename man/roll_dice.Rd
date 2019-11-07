@@ -5,7 +5,7 @@
 \title{Simulating rolling a dice. The result is returned as a tibble.}
 \usage{
 roll_dice(data = NULL, times = 1, rounds = 1, success = c(6),
-  agg = FALSE, sides = 6, prob = NULL)
+  agg = FALSE, sides = 6, prob = NULL, seed = NULL)
 }
 \arguments{
 \item{data}{Data from a previous experiment}
@@ -21,6 +21,8 @@ roll_dice(data = NULL, times = 1, rounds = 1, success = c(6),
 \item{sides}{Number of sides of the dice (default = 6)}
 
 \item{prob}{Vector of probabilities for each side of the dice}
+
+\item{seed}{Seed to produce reproducible results}
 }
 \value{
 Result of experiment as a tibble
