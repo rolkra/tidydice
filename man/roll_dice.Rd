@@ -2,7 +2,7 @@
 % Please edit documentation in R/tidydice.R
 \name{roll_dice}
 \alias{roll_dice}
-\title{Simulating rolling a dice. The result is returned as a tibble.}
+\title{Simulating rolling a dice.}
 \usage{
 roll_dice(data = NULL, times = 1, rounds = 1, success = c(6),
   agg = FALSE, sides = 6, prob = NULL, seed = NULL)
@@ -28,7 +28,9 @@ roll_dice(data = NULL, times = 1, rounds = 1, success = c(6),
 Result of experiment as a tibble
 }
 \description{
-Simulating rolling a dice. The result is returned as a tibble.
+Rolling a dice is simulated using sample(). The default dice has 6 sides and is fair.
+The properties of the dice can be changed.
+The result is returned as a tibble.
 }
 \examples{
 # rolling a dice once

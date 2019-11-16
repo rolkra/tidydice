@@ -1,14 +1,14 @@
 Package: tidydice
 Type: Package
 Title: Simulates Dice Rolls and Coin Flips
-Version: 0.0.2
+Version: 0.0.3
 Author: Roland Krasser
 Maintainer: Roland Krasser <roland.krasser@gmail.com>
 Description: Utils for basic statistical experiments, that can be used for teaching 
-    introductory statistics. Each experiment generates a tibble. 
+    introductory statistics. Each experiment generates a tibble.
     Dice rolls and coin flips are simulated using sample().
     The properties of the dice can be changed, like the number of sides.
-    A Coin flip is simulated using a two sided dice.
+    A coin flip is simulated using a two sided dice.
     Experiments can be combined with the pipe-operator.
 License: GPL-3
 Encoding: UTF-8

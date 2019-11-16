@@ -1,7 +1,11 @@
 ##############################################################################
 ## roll_dice
 ##############################################################################
-#' Simulating rolling a dice. The result is returned as a tibble.
+#' Simulating rolling a dice.
+#'
+#' Rolling a dice is simulated using sample(). The default dice has 6 sides and is fair.
+#' The properties of the dice can be changed.
+#' The result is returned as a tibble.
 #'
 #' @param data Data from a previous experiment
 #' @param times How many times a dice is rolled (or how many dice are rolled at the same time)
@@ -122,7 +126,11 @@ roll_dice <- function(data = NULL, times = 1, rounds = 1, success = c(6), agg = 
 ##############################################################################
 ## flip_coin
 ##############################################################################
-#' Simulating flipping a coin. The result is returned as a tibble.
+#' Simulating flipping a coin.
+#'
+#' Flipping a coin is simulated using sample(). The default coin has 2 sides and is fair.
+#' The properties of the coin can be changed.
+#' The result is returned as a tibble.
 #'
 #' @param data Data from a previous experiment
 #' @param times How many times coin is flipped (or how many coins are flipped at the same time)

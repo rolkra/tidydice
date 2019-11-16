@@ -2,7 +2,7 @@
 % Please edit documentation in R/tidydice.R
 \name{flip_coin}
 \alias{flip_coin}
-\title{Simulating flipping a coin. The result is returned as a tibble.}
+\title{Simulating flipping a coin.}
 \usage{
 flip_coin(data = NULL, times = 1, rounds = 1, success = c(2),
   agg = FALSE, sides = 2, prob = NULL, seed = NULL)
@@ -28,7 +28,9 @@ flip_coin(data = NULL, times = 1, rounds = 1, success = c(2),
 Result of experiment as a tibble
 }
 \description{
-Simulating flipping a coin. The result is returned as a tibble.
+Flipping a coin is simulated using sample(). The default coin has 2 sides and is fair.
+The properties of the coin can be changed.
+The result is returned as a tibble.
 }
 \examples{
 # flipping a coin
