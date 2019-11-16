@@ -1,3 +1,5 @@
+<img src="man/figures/hex_tidydice.png" align="right" width="130" height="150"/>
+
 [![CRAN Version](http://www.r-pkg.org/badges/version/tidydice)](https://cran.r-project.org/package=tidydice)
 [![Downloads](http://cranlogs.r-pkg.org/badges/tidydice)](https://cran.r-project.org/package=tidydice)
 [![Total Downloads](http://cranlogs.r-pkg.org/badges/grand-total/tidydice)](https://cran.r-project.org/package=tidydice)
