@@ -4,7 +4,7 @@ author: "Roland Krasser"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{explore}
+  %\VignetteIndexEntry{tidydice}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -38,11 +38,16 @@ library(explore)
 
 #### Roll a dice once
 
-The output of roll_dice() is a tibble. Each row represents a dice roll. Without parameters, a dice is rolled once. 
+The output of roll_dice() is a tibble. Each row represents a dice roll. Without parameters, a dice is rolled once. You can use plot_dice() to visualise the result.
 
 ```{R echo=TRUE}
 set.seed(123)
 roll_dice()
+```
+
+```{R echo=TRUE, fig.width=6, fig.height=1}
+set.seed(123)
+roll_dice() %>% plot_dice()
 ```
 
 Success is defined as result = 6 (as default), while result = 1..5 is not a success. In this case the result is 2, so it is no success.
@@ -83,6 +88,11 @@ set.seed(123)
 roll_dice(times = 4)
 ```
 
+```{R echo=TRUE, fig.width=6, fig.height=1}
+set.seed(123)
+roll_dice(times = 4) %>% plot_dice()
+```
+
 We get 1 success
 
 #### Define rounds
@@ -90,6 +100,11 @@ We get 1 success
 ```{R echo=TRUE}
 set.seed(123)
 roll_dice(times = 4, rounds = 2)
+```
+
+```{R echo=TRUE, fig.width=6, fig.height=2}
+set.seed(123)
+roll_dice(times = 4, rounds = 2) %>% plot_dice()
 ```
 
 Rolling the dice 4 times is repeated. In the first round we got 1 success, in the secound round 2 success.
@@ -152,7 +167,7 @@ If we increase rounds from 100 to 10000 we get a more symmetric shape. We see th
 set.seed(123)
 roll_dice(times = 100, rounds = 10000, agg = TRUE) %>% 
   explore(success, 
-          title = "Rolling a dice 100x",
+          title = "Rolling a dice 10000x",
           auto_scale = FALSE)
 ```
 
