@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 
 A basic understanding of probability and statistics is crucial for data understanding and discovery of meaningful patterns. A great way to teach probability and statistics is to start with an experiment, like rolling a dice or flipping a coin.
 
-This package simulates rolling a dice and flipping a coin. Each experiment generates a tibble. Dice rolls and coin flips are simulated using sample(). The properties of the dice can be changed, like the number of sides. A Coin flip is simulated using a two sided dice. Experiments can be combined with the pipe-operator.
+This package simulates rolling a dice and flipping a coin. Each experiment generates a tibble. Dice rolls and coin flips are simulated using sample(). The properties of the dice can be changed, like the number of sides. A Coin flip is simulated using a two sided dice. Experiments can be combined with the pipe-operator. 
 
 tidydice package on Github: [https://github.com/rolkra/tidydice](https://github.com/rolkra/tidydice)
 
@@ -35,6 +35,16 @@ library(explore)
 ```
 
 ### Roll a dice
+
+#### Example
+
+6 dice are rolled 3 times using roll_dice(). The result of the dice-experiment is visualised using plot_dice().
+
+```{r fig.height=3, fig.width=6}
+set.seed(123)
+roll_dice(times = 6, rounds = 3) %>% 
+  plot_dice(fill_success = "lightblue")
+```
 
 #### Roll a dice once
 
@@ -250,5 +260,56 @@ flip_coin(times = 10, rounds = 4, agg = TRUE)
 set.seed(123)
 flip_coin(times = 10, agg = TRUE) %>% 
   flip_coin(times = 15, agg = TRUE)
+```
+
+### Dice design
+
+#### Default settings
+
+```{r fig.height=1, fig.width=6}
+set.seed(123)
+roll_dice(times = 6) %>% 
+  plot_dice()
+```
+
+#### Change color
+
+```{r fig.height=1, fig.width=6}
+set.seed(123)
+roll_dice(times = 6) %>% 
+  plot_dice(fill = "lightblue", fill_success = "darkblue")
+```
+
+```{r fig.height=1, fig.width=6}
+set.seed(123)
+roll_dice(times = 6) %>% 
+  plot_dice(fill = "darkgrey", 
+            fill_success = "darkblue",
+            line_color = "white",
+            point_color = "white")
+```
+
+#### Dice type
+
+```{r fig.height=1, fig.width=6}
+set.seed(123)
+roll_dice(times = 6) %>% 
+  plot_dice(detailed = TRUE)
+```
+
+```{r fig.height=1, fig.width=6}
+set.seed(123)
+roll_dice(times = 6) %>% 
+  plot_dice(detailed = FALSE)
+```
+
+#### Limits
+
+plot_dice() is limited to 1 experiment with max. 10 times x 10 rounds.
+
+```{r fig.height=6, fig.width=6}
+set.seed(123)
+roll_dice(times = 10, rounds = 10) %>% 
+  plot_dice(detailed = FALSE)
 ```
 
