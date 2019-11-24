@@ -334,6 +334,13 @@ force_dice(rep(6, times = 6)) %>%
   plot_dice()
 ```
 
+We can combine two foreced dice rolling using the pipe operator and the parameter round.
+
+```{r fig.height=1, fig.width=6}
+force_dice(rep(5, times = 3), round = 1) %>% 
+  force_dice(rep(6, times = 3), round = 2)
+```
+
 ```{r fig.height=1, fig.width=6}
 set.seed(123)
 force_dice(rep(6, times = 3)) %>% 
