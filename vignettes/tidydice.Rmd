@@ -277,6 +277,13 @@ roll_dice(times = 6) %>%
 ```{r fig.height=1, fig.width=6}
 set.seed(123)
 roll_dice(times = 6) %>% 
+  plot_dice(fill = "black", line_color = "white", point_color = "white")
+```
+
+
+```{r fig.height=1, fig.width=6}
+set.seed(123)
+roll_dice(times = 6) %>% 
   plot_dice(fill = "lightblue", fill_success = "darkblue")
 ```
 
@@ -313,3 +320,24 @@ roll_dice(times = 10, rounds = 10) %>%
   plot_dice(detailed = FALSE)
 ```
 
+#### Force
+
+You can force a result using force_dice() and force_coin().
+
+```{r fig.height=1, fig.width=6}
+force_dice(1:6) %>% 
+  plot_dice()
+```
+
+```{r fig.height=1, fig.width=6}
+force_dice(rep(6, times = 6)) %>% 
+  plot_dice()
+```
+
+```{r fig.height=1, fig.width=6}
+set.seed(123)
+force_dice(rep(6, times = 3)) %>% 
+  roll_dice(times = 3)
+```
+
+In the first experiment we get 3 times a 6 (forced), but in the second experiment none.

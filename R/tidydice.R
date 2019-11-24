@@ -173,3 +173,79 @@ flip_coin <- function(data = NULL, times = 1, rounds = 1, success = c(2), agg = 
             seed = seed)
 }
 
+##############################################################################
+## force_dice
+##############################################################################
+#' Force a dice rolling result.
+#'
+#' The forced result is returned as a tibble.
+#'
+#' @param data Data from a previous experiment
+#' @param result Vector of rolling dice results
+#' @param round Round of rolling dice
+#' @param experiment Experiment Number 
+#' @param success Which result is a success (default = 6)
+#' @return Result of experiment as a tibble
+#' @importFrom magrittr "%>%"
+#' @examples
+#' force_dice(6)
+#' force_dice(1:6)
+#' @export
+
+force_dice <- function(data = NULL, result = 6, round = 1, experiment = 1, success = 6)  {
+
+  # passing result without data  
+  if (!missing(data) & is.numeric(data))  {
+    result <- data
+    data <- NULL
+  }
+
+  length <- length(result)
+  if (length < 0)  {
+    stop("result must contain a numeric value")  
+  }
+  
+  data_new <- tibble::tibble(
+                  experiment = as.integer(rep(experiment, times = length)),
+                  round = as.integer(rep(round, times = length)),
+                  nr = as.integer(1:length),
+                  result = as.integer(result))
+
+  # determine success
+  data_new <- data_new %>%
+    dplyr::mutate(success = ifelse(result %in% success, TRUE, FALSE))
+  
+  # add to data
+  data <- dplyr::bind_rows(data, data_new) %>% 
+    dplyr::select(experiment, dplyr::everything())
+  
+  # return data
+  data
+  
+} # force_dice
+
+##############################################################################
+## force_coin
+##############################################################################
+#' Force a coin flipping result.
+#'
+#' The forced result is returned as a tibble.
+#'
+#' @param data Data from a previous experiment
+#' @param result Vector of flipping coin results
+#' @param round Round of flipping coin
+#' @param experiment Experiment Number 
+#' @param success Which result is a success (default = 6)
+#' @return Result of experiment as a tibble
+#' @importFrom magrittr "%>%"
+#' @examples
+#' force_coin(6)
+#' force_coin(1:6)
+#' @export
+
+force_coin <- function(data = NULL, result = 6, round = 1, experiment = 1, success = 6)  {
+ 
+  force_dice(data, result, round, experiment, success)
+   
+}
+  
