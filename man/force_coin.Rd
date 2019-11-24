@@ -5,7 +5,7 @@
 \title{Force a coin flipping result.}
 \usage{
 force_coin(data = NULL, result = 6, round = 1, experiment = 1,
-  success = 6)
+  success = 2)
 }
 \arguments{
 \item{data}{Data from a previous experiment}

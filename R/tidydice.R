@@ -243,9 +243,9 @@ force_dice <- function(data = NULL, result = 6, round = 1, experiment = 1, succe
 #' force_coin(1:6)
 #' @export
 
-force_coin <- function(data = NULL, result = 6, round = 1, experiment = 1, success = 6)  {
+force_coin <- function(data = NULL, result = 6, round = 1, experiment = 1, success = 2)  {
  
   force_dice(data, result, round, experiment, success)
    
-}
+} # force_coin
   
