@@ -40,6 +40,3 @@ ggplot-Object
 \description{
 Draw a single dice
 }
-\examples{
-plot_single_dice()
-}

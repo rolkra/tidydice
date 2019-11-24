@@ -19,6 +19,3 @@ Dataframe with x and y coordinates to draw a circle
 \description{
 Helper function to draw a circle
 }
-\examples{
-circle_points()
-}

@@ -5,7 +5,7 @@
 \title{Plot result of roll_dice()}
 \usage{
 plot_dice(data, detailed = TRUE, fill = "white", fill_success = fill,
-  point_color = "black", line_color = "black")
+  point_color = "black", line_color = "black", line_size = 0.8)
 }
 \arguments{
 \item{data}{result of roll_dice()}
@@ -20,11 +20,7 @@ plot_dice(data, detailed = TRUE, fill = "white", fill_success = fill,
 
 \item{line_color}{Color of Lines}
 
-\item{width}{Width of dice}
-
-\item{fill}{Fill color}
-
-\item{detailed}{If TRUE, the dice is plotted with more details}
+\item{line_size}{Size of Lines}
 }
 \value{
 ggplot-Object

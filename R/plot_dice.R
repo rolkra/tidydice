@@ -7,8 +7,6 @@
 #' @param diameter Diameter of circle
 #' @param npoints Number of points used for drawing a circle
 #' @return Dataframe with x and y coordinates to draw a circle 
-#' @examples
-#' circle_points()
 
 circle_points <- function(center = c(0, 0), diameter = 1, npoints = 100)  {
   
@@ -41,8 +39,6 @@ circle_points <- function(center = c(0, 0), diameter = 1, npoints = 100)  {
 #' @importFrom magrittr "%>%"
 #' @import dplyr
 #' @import ggplot2
-#' @examples
-#' plot_single_dice()
 
 plot_single_dice <- function(ggplot = NULL, result = 6, x = 0, y = 0, width = 0.9, fill = "white", detailed = TRUE, rounding = dice_width/5, line_size = 0.8, line_color = "black", point_size = width/6, point_color = "black")  {
   
@@ -170,11 +166,9 @@ plot_single_dice <- function(ggplot = NULL, result = 6, x = 0, y = 0, width = 0.
 #' @param detailed If TRUE, the dice is plotted with more details
 #' @param fill Fill color
 #' @param fill_success Fill color if result is a success
-#' @param width Width of dice
-#' @param fill Fill color
-#' @param detailed If TRUE, the dice is plotted with more details
 #' @param point_color Color of Points
 #' @param line_color Color of Lines
+#' @param line_size Size of Lines
 #' @return ggplot-Object 
 #' @importFrom magrittr "%>%"
 #' @import dplyr
@@ -186,7 +180,7 @@ plot_single_dice <- function(ggplot = NULL, result = 6, x = 0, y = 0, width = 0.
 #' roll_dice(times = 3, rounds = 3) %>% plot_dice(fill_success = "red")
 #' @export
 
-plot_dice <- function(data, detailed = TRUE, fill = "white", fill_success = fill, point_color = "black", line_color = "black")  {
+plot_dice <- function(data, detailed = TRUE, fill = "white", fill_success = fill, point_color = "black", line_color = "black", line_size = 0.8)  {
   
   # check data
   if (missing(data))  {
