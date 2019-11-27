@@ -143,7 +143,7 @@ roll_dice(times = 4, rounds = 2) %>%
 
 You can use any package/tool you like to visualise the result. In this example we use the explore-package.
 
-```{R echo=TRUE}
+```{R echo=TRUE, fig.height=4, fig.width=7}
 set.seed(123)
 roll_dice(times = 100) %>% 
   explore(result, title = "Rolling a dice 100x")
@@ -153,7 +153,7 @@ In 15% of the cases we got a six. This is close to the expected value of 100/6 =
 
 If we increase the times parameter to 10000, the results are more balanced.
 
-```{R echo=TRUE}
+```{R echo=TRUE, fig.height=4, fig.width=7}
 set.seed(123)
 roll_dice(times = 10000) %>% 
   explore(result, title = "Rolling a dice 10000x")
@@ -163,7 +163,7 @@ roll_dice(times = 10000) %>%
 
 If we repeat the experiment rolling a dice 100x with rounds = 100, we get the distribution with a peak at about 17 (16.67 is the expected value)
 
-```{R echo=TRUE}
+```{R echo=TRUE, fig.height=4, fig.width=7}
 set.seed(123)
 roll_dice(times = 100, rounds = 100, agg = TRUE) %>% 
   explore(success, 
@@ -173,7 +173,7 @@ roll_dice(times = 100, rounds = 100, agg = TRUE) %>%
 
 If we increase rounds from 100 to 10000 we get a more symmetric shape. We see that success below 5 and success above 30 are very unlikely.
 
-```{R echo=TRUE}
+```{R echo=TRUE, fig.height=4, fig.width=7}
 set.seed(123)
 roll_dice(times = 100, rounds = 10000, agg = TRUE) %>% 
   explore(success, 
@@ -194,7 +194,7 @@ In only 4 of 10000 cases success is below 5 or above 30. So the probability to g
 
 Let's add an experiment, where you have 10 extra dice. The shape of the distribution changes.
 
-```{R echo=TRUE}
+```{R echo=TRUE, fig.height=4, fig.width=7}
 set.seed(123)
 roll_dice(times = 100, rounds = 10000, agg = TRUE) %>% 
   roll_dice(times = 110, rounds = 10000, agg = TRUE) %>% 
@@ -208,7 +208,7 @@ You can add as many experiments as you like (as long they generate the same data
 
 Adding an experiment with times = 150 will generate a smaller but wider shape.
 
-```{R echo=TRUE}
+```{R echo=TRUE, fig.height=4, fig.width=7}
 set.seed(123)
 roll_dice(times = 100, rounds = 10000, agg = TRUE) %>% 
   roll_dice(times = 110, rounds = 10000, agg = TRUE) %>% 
@@ -284,7 +284,7 @@ roll_dice(times = 6) %>%
 ```{r fig.height=1, fig.width=6}
 set.seed(123)
 roll_dice(times = 6) %>% 
-  plot_dice(fill = "lightblue", fill_success = "darkblue")
+  plot_dice(fill = "lightblue", fill_success = "gold")
 ```
 
 ```{r fig.height=1, fig.width=6}
@@ -317,7 +317,7 @@ plot_dice() is limited to 1 experiment with max. 10 times x 10 rounds.
 ```{r fig.height=6, fig.width=6}
 set.seed(123)
 roll_dice(times = 10, rounds = 10) %>% 
-  plot_dice(detailed = FALSE)
+  plot_dice(detailed = FALSE, fill_success = "gold")
 ```
 
 #### Force

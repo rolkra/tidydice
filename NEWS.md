@@ -1,3 +1,7 @@
+## tidydice 0.0.5 (DEV)
+
+* improve vignette
+
 ## tidydice 0.0.4 (2019-11-26)
 
 * add function plot_dice()
