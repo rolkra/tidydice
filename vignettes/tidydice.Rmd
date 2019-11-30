@@ -167,7 +167,7 @@ If we repeat the experiment rolling a dice 100x with rounds = 100, we get the di
 set.seed(123)
 roll_dice(times = 100, rounds = 100, agg = TRUE) %>% 
   explore(success, 
-          title = "Rolling a dice 100x",
+          title = "Rolling 100 dice 100x",
           auto_scale = FALSE)
 ```
 
@@ -177,8 +177,15 @@ If we increase rounds from 100 to 10000 we get a more symmetric shape. We see th
 set.seed(123)
 roll_dice(times = 100, rounds = 10000, agg = TRUE) %>% 
   explore(success, 
-          title = "Rolling a dice 10000x",
+          title = "Rolling 100 dice 10000x",
           auto_scale = FALSE)
+```
+
+This shape is already very close to the binomial distribution
+
+```{R echo=TRUE, fig.height=4, fig.width=7}
+binom_dice(times = 100) %>% 
+  plot_binom(title = "Binomial distribution, 100 dice rolls")
 ```
 
 ```{R echo=TRUE}
@@ -188,7 +195,22 @@ roll_dice(times = 100, rounds = 10000, agg = TRUE) %>%
   count(check)
 ```
 
-In only 4 of 10000 cases success is below 5 or above 30. So the probability to get this result is very low.
+In only 4 of 10000 (0.04%) cases success is below 5 or above 30. So the probability to get this result is very low.
+
+We can check that with the binomial distribution too:
+
+```{R echo=TRUE}
+binom_dice(times = 100) %>% 
+  filter(success < 5 | success > 30)
+```
+
+```{R echo=TRUE}
+binom_dice(times = 100) %>% 
+  filter(success < 5 | success > 30) %>% 
+  summarise(check_pct = sum(pct))
+```
+
+The probability to get this result is 0.04% (based on the binomial distribution)
 
 #### Combine experiments
 
@@ -260,6 +282,17 @@ flip_coin(times = 10, rounds = 4, agg = TRUE)
 set.seed(123)
 flip_coin(times = 10, agg = TRUE) %>% 
   flip_coin(times = 15, agg = TRUE)
+```
+
+#### Binomial Distribution
+
+```{R echo=TRUE}
+binom_coin(times = 10) 
+```
+
+```{R echo=TRUE}
+binom_coin(times = 10) %>% 
+  plot_binom(title = "Binomial distribution, 10 coin flips")
 ```
 
 ### Dice design
