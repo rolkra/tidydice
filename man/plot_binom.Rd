@@ -5,7 +5,7 @@
 \title{Plot a binomial distribution.}
 \usage{
 plot_binom(data, title = "Binomial distribution", color = "darkgrey",
-  label = TRUE, label_size = 3, min_pct = 0.05)
+  label = NULL, label_size = 3, min_pct = 0.05)
 }
 \arguments{
 \item{data}{data containing values for binomial distribution}

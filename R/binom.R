@@ -36,7 +36,7 @@ binom_dice <- function(times, sides = 6, success = 6) {
   x_seq <- 1:times
   #p <- purrr::map_dbl(x_seq, ~dbinom(size = times, x =  .x, p = n_success/sides))  
   p <- stats::dbinom(size = times, x = x_seq, prob = n_success/sides)
-  tbl <- tibble(success = x_seq, p = p, pct = round(p *100.00, 2))
+  tbl <- tibble::tibble(success = x_seq, p = p, pct = round(p *100.00, 2))
   
   # return result
   tbl
@@ -78,21 +78,41 @@ binom_coin <- function(times, sides = 2, success = 2) {
 #' @param label_size size of label
 #' @param min_pct surpress values < min_pct
 #' @return ggplot object
+#' @importFrom magrittr "%>%"
+#' @import dplyr
+#' @import ggplot2
 #' @examples
 #' plot_binom(data = binom_dice(times = 10))
 #' @export
-#' 
-plot_binom <- function(data , title = "Binomial distribution", color = "darkgrey", label = TRUE, label_size = 3, min_pct = 0.05)  {
+
+plot_binom <- function(data , title = "Binomial distribution", color = "darkgrey", label = NULL, label_size = 3, min_pct = 0.05)  {
   
   assertthat::assert_that("success" %in% names(data), msg = "success not found in data")
   assertthat::assert_that("pct" %in% names(data), msg = "pct not found in data")
   
   # define variables to pass CRAN checks
   pct <- NULL
+  pct_label <- NULL
   success <- NULL
   
   # drop if pct < 0.05
   data <- data %>% filter(pct >= min_pct)
+  
+  # label?
+  if (is.null(label)) {
+    if (nrow(data) < 50) {
+      label <- TRUE
+    } else {
+      label <- FALSE
+    }
+  }
+  
+  # format label
+  if (nrow(data) > 30)  {
+    data <- data %>% mutate(pct_label = ifelse(pct >= 10, round(pct,1), round(pct,1)))
+  } else {  
+    data <- data %>% mutate(pct_label = ifelse(pct >= 10, round(pct,1), round(pct,2)))
+  }
   
   # plot
   p <- data %>% ggplot(aes(success, pct)) + 
@@ -103,7 +123,7 @@ plot_binom <- function(data , title = "Binomial distribution", color = "darkgrey
   
   # label
   if (label) {
-    p <- p + geom_text(aes(x = success, y = pct, label = pct), 
+    p <- p + geom_text(aes(x = success, y = pct, label = pct_label), 
                        size = label_size, vjust = 0, nudge_y = 0.1)
   }  
   

@@ -1,6 +1,9 @@
-## tidydice 0.0.5 (DEV)
+## tidydice 0.0.6 (2019-12-01)
 
 * improve vignette
+* add function binom_dice()
+* add function binom_coin()
+* add function plot_binom()
 
 ## tidydice 0.0.4 (2019-11-26)
 

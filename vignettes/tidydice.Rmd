@@ -185,7 +185,7 @@ This shape is already very close to the binomial distribution
 
 ```{R echo=TRUE, fig.height=4, fig.width=7}
 binom_dice(times = 100) %>% 
-  plot_binom(title = "Binomial distribution, 100 dice rolls")
+  plot_binom(title = "Binomial distribution, rolling 100 dice")
 ```
 
 ```{R echo=TRUE}
