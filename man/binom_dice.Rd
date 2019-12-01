@@ -17,7 +17,8 @@ binom_dice(times, sides = 6, success = 6)
 Binomial distribution as a tibble
 }
 \description{
-Generates a tibble containing the binomial distribution of rolling the dice.
+Generates a tibble containing the binomial distribution of rolling the dice
+using dbinom().
 }
 \examples{
 binom_dice(times = 10)

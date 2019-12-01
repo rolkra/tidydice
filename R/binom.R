@@ -3,7 +3,8 @@
 ##############################################################################
 #' Binomial distribution of rolling a dice.
 #'
-#' Generates a tibble containing the binomial distribution of rolling the dice.
+#' Generates a tibble containing the binomial distribution of rolling the dice
+#' using dbinom().
 #'
 #' @param times How many times a dice is rolled (or how many dice are rolled at the same time)
 #' @param success Which result is a success (default = 6)
@@ -49,6 +50,7 @@ binom_dice <- function(times, sides = 6, success = 6) {
 #' Binomial distribution of flipping a coin.
 #'
 #' Generates a tibble containing the binomial distribution of flipping a coin
+#' using dbinom().
 #'
 #' @param times how many times a coin is flipped (or how many coins are flipped at the same time)
 #' @param success which result is a success (default = 2)
@@ -137,3 +139,39 @@ plot_binom <- function(data , title = "Binomial distribution", color = "darkgrey
   
 } # plot_binom
 
+##############################################################################
+## binom
+##############################################################################
+#' Binomial distribution as table.
+#'
+#' Generates a tibble containing the binomial distribution using dbinom().
+#'
+#' @param times number of trials
+#' @param prob_success probability of success (number between 0 and 1)
+#' @return Binomial distribution as a tibble
+#' @examples
+#' binom(times = 10, prob_success = 1/10)
+#' @export
+
+binom <- function(times, prob_success) {
+  
+  # check if meaningful parameters
+  assertthat::assert_that(is.numeric(times), msg = "times must be numeric")
+  assertthat::assert_that(is.numeric(prob_success), msg = "prob_success must be numeric")
+  assertthat::assert_that(length(times) == 1)
+  assertthat::assert_that(length(prob_success) == 1)
+  assertthat::assert_that(times > 0)
+  assertthat::assert_that(prob_success >= 0)
+  
+  # make sure that parameters are integer
+  times <- floor(times)
+
+  # binomial distribution
+  x_seq <- 1:times
+  p <- stats::dbinom(size = times, x = x_seq, prob = prob_success)
+  tbl <- tibble::tibble(success = x_seq, p = p, pct = round(p *100.00, 2))
+  
+  # return result
+  tbl
+  
+} # binom

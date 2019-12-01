@@ -18,6 +18,7 @@ binomial distribution as a tibble
 }
 \description{
 Generates a tibble containing the binomial distribution of flipping a coin
+using dbinom().
 }
 \examples{
 binom_coin(times = 10)
