@@ -120,7 +120,7 @@ plot_binom <- function(data , title = "Binomial distribution", color = "darkgrey
   p <- data %>% ggplot(aes(success, pct)) + 
     geom_col(fill = color) + 
     ylim(0, max(data$pct * 1.1)) +
-    ylab("percent") +
+    ylab("percent (0-100)") +
     theme_light()
   
   # label
