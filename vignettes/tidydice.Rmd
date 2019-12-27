@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 
 A basic understanding of probability and statistics is crucial for data understanding and discovery of meaningful patterns. A great way to teach probability and statistics is to start with an experiment, like rolling a dice or flipping a coin.
 
-This package simulates rolling a dice and flipping a coin. Each experiment generates a tibble. Dice rolls and coin flips are simulated using sample(). The properties of the dice can be changed, like the number of sides. A Coin flip is simulated using a two sided dice. Experiments can be combined with the pipe-operator. 
+This package simulates rolling a dice and flipping a coin. Each experiment generates a tibble. Dice rolls and coin flips are simulated using sample(). The properties of the dice can be changed, like the number of sides. A coin flip is simulated using a two sided dice. Experiments can be combined with the pipe-operator. 
 
 tidydice package on Github: [https://github.com/rolkra/tidydice](https://github.com/rolkra/tidydice)
 
@@ -292,7 +292,7 @@ binom_coin(times = 10)
 
 ```{R echo=TRUE}
 binom_coin(times = 10) %>% 
-  plot_binom(title = "Binomial distribution, 10 coin flips")
+  plot_binom(title = "Binomial distribution,\n10 coin flips")
 ```
 
 ### Dice design
@@ -312,7 +312,6 @@ set.seed(123)
 roll_dice(times = 6) %>% 
   plot_dice(fill = "black", line_color = "white", point_color = "white")
 ```
-
 
 ```{r fig.height=1, fig.width=6}
 set.seed(123)

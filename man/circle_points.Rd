@@ -4,7 +4,7 @@
 \alias{circle_points}
 \title{Helper function to draw a circle}
 \usage{
-circle_points(center = c(0, 0), diameter = 1, npoints = 100)
+circle_points(center = c(0, 0), diameter = 1, npoints = 61)
 }
 \arguments{
 \item{center}{Vector with x and y coordinate of center}

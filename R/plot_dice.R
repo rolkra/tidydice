@@ -8,7 +8,7 @@
 #' @param npoints Number of points used for drawing a circle
 #' @return Dataframe with x and y coordinates to draw a circle 
 
-circle_points <- function(center = c(0, 0), diameter = 1, npoints = 100)  {
+circle_points <- function(center = c(0, 0), diameter = 1, npoints = 61)  {
   
   r <- diameter / 2
   tt <- seq(0, 2*pi, length.out = npoints)
@@ -40,7 +40,7 @@ circle_points <- function(center = c(0, 0), diameter = 1, npoints = 100)  {
 #' @import dplyr
 #' @import ggplot2
 
-plot_single_dice <- function(ggplot = NULL, result = 6, x = 0, y = 0, width = 0.9, fill = "white", detailed = TRUE, rounding = dice_width/5, line_size = 0.8, line_color = "black", point_size = width/6, point_color = "black")  {
+plot_single_dice <- function(ggplot = NULL, result = 6, x = 0, y = 0, width = 0.9, fill = "white", detailed = FALSE, rounding = dice_width/5, line_size = 0.8, line_color = "black", point_size = width/6, point_color = "black")  {
   
   dice_width = width / 2
   dice_rounding = rounding
@@ -73,10 +73,10 @@ plot_single_dice <- function(ggplot = NULL, result = 6, x = 0, y = 0, width = 0.
                        y = c(y + dice_width - dice_rounding, y - dice_width + dice_rounding))
   
   # dice outside
-  dice_cube_round <- rbind(circle_lt[25:50,], line_l, 
-                           circle_lb[50:75,], line_b,
-                           circle_rb[75:100,], line_r, 
-                           circle_rt[0:25,], line_t) 
+  dice_cube_round <- rbind(circle_lt[15:30,], line_l, 
+                           circle_lb[30:45,], line_b,
+                           circle_rb[45:60,], line_r, 
+                           circle_rt[1:15,], line_t) 
   
   # dice outside (simple rectangle)
   dice_cube_simple <- data.frame(x = c(x-dice_width, x+dice_width, x+dice_width, x-dice_width, x-dice_width),
@@ -188,7 +188,7 @@ plot_single_dice <- function(ggplot = NULL, result = 6, x = 0, y = 0, width = 0.
 #' roll_dice(times = 3, rounds = 3) %>% plot_dice(fill_success = "red")
 #' @export
 
-plot_dice <- function(data, detailed = TRUE, fill = "white", fill_success = fill, point_color = "black", line_color = "black", line_size = 0.8)  {
+plot_dice <- function(data, detailed = FALSE, fill = "white", fill_success = fill, point_color = "black", line_color = "black", line_size = 0.8)  {
   
   # check data
   if (missing(data))  {

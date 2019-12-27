@@ -4,8 +4,9 @@
 \alias{plot_dice}
 \title{Plot result of roll_dice()}
 \usage{
-plot_dice(data, detailed = TRUE, fill = "white", fill_success = fill,
-  point_color = "black", line_color = "black", line_size = 0.8)
+plot_dice(data, detailed = FALSE, fill = "white",
+  fill_success = fill, point_color = "black", line_color = "black",
+  line_size = 0.8)
 }
 \arguments{
 \item{data}{result of roll_dice()}
