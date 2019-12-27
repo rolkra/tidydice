@@ -87,7 +87,7 @@ plot_single_dice <- function(ggplot = NULL, result = 6, x = 0, y = 0, width = 0.
     line_end <- "round"
   } else  { 
     dice_cube <- dice_cube_simple
-    line_end <- "butt"
+    line_end <- "square"
   } # if
   
   # points
@@ -119,48 +119,37 @@ plot_single_dice <- function(ggplot = NULL, result = 6, x = 0, y = 0, width = 0.
     # plot dice  
     p <- ggplot +
       geom_polygon(data = dice_cube, aes(x, y), 
-                   color = line_color, size = line_size, fill = fill) +
+                   color = line_color, size = line_size*0.9, fill = fill) +
       geom_path(data = dice_cube, aes(x, y), 
-                color = line_color, size = line_size, lineend = line_end)
-    
-    # plot dots
-    for (i in 1:nrow(points))  {
-      x <- points$x[i]
-      y <- points$y[i]
-      if (detailed)  {
-        dice_dot <- circle_points(center = c(x, y), diameter = point_size)
-      } else {
-        dice_dot <- data.frame(x = c(x-point_size/2*0.9, x+point_size/2*0.9, x+point_size/2*0.9, x-point_size/2*0.9, x-point_size/2*0.9),
-                               y = c(y+point_size/2*0.9, y+point_size/2*0.9, y-point_size/2*0.9, y-point_size/2*0.9, y+point_size/2*0.9))
-      }
-      p <- p + geom_polygon(data = dice_dot, aes(x, y), color = point_color, fill = point_color)
-    }
-  }
-  else  {
-    # add plot dice  
-    p<-ggplot() +
+                 color = line_color, size = line_size, lineend = line_end)
+  } else  {
+      # add plot dice  
+    p <- ggplot() +
       geom_polygon(data = dice_cube, aes(x, y), 
-                   color = line_color, size = line_size, fill = fill) +
+                   color = line_color, size = line_size*0.9, fill = fill) +
       geom_path(data = dice_cube, aes(x, y), 
-                color = line_color, size = line_size, lineend = "square")
+                   color = line_color, size = line_size, lineend = line_end)
+  } #if  
     
-    # plot dots
-    for (i in 1:nrow(points))  {
-      x <- points$x[i]
-      y <- points$y[i]
-      if (detailed)  {
+  # plot dots
+  for (i in 1:nrow(points))  {
+    x <- points$x[i]
+    y <- points$y[i]
+    if (detailed)  {
         dice_dot <- circle_points(center = c(x, y), diameter = point_size)
-      } else {
+    } else {
         dice_dot <- data.frame(x = c(x-point_size/2*0.9, x+point_size/2*0.9, x+point_size/2*0.9, x-point_size/2*0.9, x-point_size/2*0.9),
                                y = c(y+point_size/2*0.9, y+point_size/2*0.9, y-point_size/2*0.9, y-point_size/2*0.9, y+point_size/2*0.9))
-      }
-      p <- p + geom_polygon(data = dice_dot, aes(x, y), color = point_color, fill = point_color)
-    }
-    # fix coordinates
+    } #if detailed
+    p <- p + geom_polygon(data = dice_dot, aes(x, y), color = point_color, fill = point_color)
+  } #for
+    
+  # fix coordinates
+  if (missing(ggplot))  { 
     p <- p +
       coord_fixed() +
       theme_void()
-  } # if
+  } #if
   
   # output
   p
