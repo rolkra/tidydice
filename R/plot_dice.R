@@ -73,10 +73,10 @@ plot_single_dice <- function(ggplot = NULL, result = 6, x = 0, y = 0, width = 0.
                        y = c(y + dice_width - dice_rounding, y - dice_width + dice_rounding))
   
   # dice outside
-  dice_cube_round <- rbind(circle_lt[15:30,], line_l, 
-                           circle_lb[30:45,], line_b,
-                           circle_rb[45:60,], line_r, 
-                           circle_rt[1:15,], line_t) 
+  dice_cube_round <- rbind(circle_lt[16:29,], line_l, 
+                           circle_lb[31:44,], line_b,
+                           circle_rb[46:60,], line_r, 
+                           circle_rt[1:14,], line_t) 
   
   # dice outside (simple rectangle)
   dice_cube_simple <- data.frame(x = c(x-dice_width, x+dice_width, x+dice_width, x-dice_width, x-dice_width),
@@ -84,8 +84,10 @@ plot_single_dice <- function(ggplot = NULL, result = 6, x = 0, y = 0, width = 0.
 
   if (detailed)  {
     dice_cube <- dice_cube_round
+    line_end <- "round"
   } else  { 
     dice_cube <- dice_cube_simple
+    line_end <- "butt"
   } # if
   
   # points
@@ -119,7 +121,7 @@ plot_single_dice <- function(ggplot = NULL, result = 6, x = 0, y = 0, width = 0.
       geom_polygon(data = dice_cube, aes(x, y), 
                    color = line_color, size = line_size, fill = fill) +
       geom_path(data = dice_cube, aes(x, y), 
-                color = line_color, size = line_size, lineend = "square")
+                color = line_color, size = line_size, lineend = line_end)
     
     # plot dots
     for (i in 1:nrow(points))  {

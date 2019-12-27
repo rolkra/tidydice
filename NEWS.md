@@ -5,6 +5,7 @@
 * add function binom_dice()
 * add function binom_coin()
 * add function plot_binom()
+* plot_dice() detailed = FALSE as default
 
 ## tidydice 0.0.4 (2019-11-26)
 
