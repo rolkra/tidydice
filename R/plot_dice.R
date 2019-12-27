@@ -79,8 +79,8 @@ plot_single_dice <- function(ggplot = NULL, result = 6, x = 0, y = 0, width = 0.
                            circle_rt[0:25,], line_t) 
   
   # dice outside (simple rectangle)
-  dice_cube_simple <- data.frame(x = c(x-dice_width, x+dice_width, x+dice_width, x-dice_width, x-dice_width, x+dice_width),
-                                 y = c(y+dice_width, y+dice_width, y-dice_width, y-dice_width, y+dice_width, y+dice_width))
+  dice_cube_simple <- data.frame(x = c(x-dice_width, x+dice_width, x+dice_width, x-dice_width, x-dice_width),
+                                 y = c(y+dice_width, y+dice_width, y-dice_width, y-dice_width, y+dice_width))
 
   if (detailed)  {
     dice_cube <- dice_cube_round
@@ -116,11 +116,11 @@ plot_single_dice <- function(ggplot = NULL, result = 6, x = 0, y = 0, width = 0.
   if (!missing(ggplot))  {
     # plot dice  
     p <- ggplot +
-      geom_polygon(data = dice_cube, 
-                   aes(x, y), 
-                   color = line_color,
-                   size = line_size, 
-                   fill = fill)
+      geom_polygon(data = dice_cube, aes(x, y), 
+                   color = line_color, size = line_size, fill = fill) +
+      geom_path(data = dice_cube, aes(x, y), 
+                color = line_color, size = line_size, lineend = "square")
+    
     # plot dots
     for (i in 1:nrow(points))  {
       x <- points$x[i]
@@ -137,7 +137,10 @@ plot_single_dice <- function(ggplot = NULL, result = 6, x = 0, y = 0, width = 0.
   else  {
     # add plot dice  
     p<-ggplot() +
-      geom_polygon(data = dice_cube, aes(x, y), color = line_color, size = line_size, fill = fill)
+      geom_polygon(data = dice_cube, aes(x, y), 
+                   color = line_color, size = line_size, fill = fill) +
+      geom_path(data = dice_cube, aes(x, y), 
+                color = line_color, size = line_size, lineend = "square")
     
     # plot dots
     for (i in 1:nrow(points))  {
