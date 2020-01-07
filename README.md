@@ -36,3 +36,39 @@ if you are behind a firewall, you may want to:
 if (!require(devtools)) install.packages("devtools")
 devtools::install_local(path = <path of local package>, force = TRUE)
 ```
+
+## Example
+
+```r
+# load packages
+library(tidyverse)
+library(tidydice)
+
+# roll a dice
+roll_dice()
+
+# roll a dice 6x
+roll_dice(times = 6)
+
+# roll a dice 6x and plot result
+roll_dice(times = 6) %>% 
+  plot_dice()
+
+# repeat 6x
+roll_dice(times = 6, rounds = 6) %>% 
+  plot_dice()
+
+# count success per round
+roll_dice(times = 6, rounds = 6, agg = TRUE)
+
+# Binomial distribution
+binom_dice(times = 6)
+  
+# Binomial distribution + plot
+binom_dice(times = 6) %>% 
+  plot_binom()
+
+# Binomial distribution + plot 
+binom_dice(times = 6) %>% 
+  plot_binom(highlight = 0:2)
+```

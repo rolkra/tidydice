@@ -112,9 +112,11 @@ binom <- function(times, prob_success) {
 #' @param data data containing values for binomial distribution
 #' @param title title of the plot
 #' @param color color of bars
+#' @param color_highlight color of highlighted bars
 #' @param label add labels to plot?
 #' @param label_size size of label
 #' @param min_pct surpress values < min_pct
+#' @param highlight vector of values to be highlighted
 #' @return ggplot object
 #' @importFrom magrittr "%>%"
 #' @import dplyr
@@ -123,7 +125,7 @@ binom <- function(times, prob_success) {
 #' plot_binom(data = binom_dice(times = 10))
 #' @export
 
-plot_binom <- function(data , title = "Binomial distribution", color = "darkgrey", label = NULL, label_size = 3, min_pct = 0.05)  {
+plot_binom <- function(data , title = "Binomial distribution", color = "darkgrey", color_highlight = "red", label = NULL, label_size = 3, min_pct = 0.05, highlight = NULL)  {
   
   assertthat::assert_that("success" %in% names(data), msg = "success not found in data")
   assertthat::assert_that("pct" %in% names(data), msg = "pct not found in data")
@@ -135,6 +137,19 @@ plot_binom <- function(data , title = "Binomial distribution", color = "darkgrey
   
   # drop if pct < 0.05
   data <- data %>% filter(pct >= min_pct)
+
+  # add highlight
+  if (missing(highlight)) {
+    data <- data %>% mutate(highlight = TRUE)  
+  } else {
+    data <- data %>% 
+      mutate(highlight = ifelse (success %in% highlight, TRUE, FALSE))
+    pct_sum <- data %>% 
+      filter(highlight == TRUE) %>% 
+      summarise(pct_sum = sum(pct)) %>% 
+      pull()
+    
+  } # if
   
   # label?
   if (is.null(label)) {
@@ -152,9 +167,19 @@ plot_binom <- function(data , title = "Binomial distribution", color = "darkgrey
     data <- data %>% mutate(pct_label = ifelse(pct >= 10, round(pct,1), round(pct,2)))
   }
   
+  if (missing(highlight)) {
+    p <- data %>% 
+      ggplot(aes(success, pct)) + 
+      geom_col(fill = color)
+  } else {
+    p <- data %>% 
+      ggplot(aes(success, pct, fill=highlight)) + 
+      geom_col() +
+      scale_fill_manual(values = c(color, color_highlight)) 
+  }
+    
   # plot
-  p <- data %>% ggplot(aes(success, pct)) + 
-    geom_col(fill = color) + 
+  p <- p +
     ylim(0, max(data$pct * 1.1)) +
     ylab("percent (0-100)") +
     theme_light()
@@ -166,10 +191,14 @@ plot_binom <- function(data , title = "Binomial distribution", color = "darkgrey
   }  
   
   # add title
-  if (!is.null(title)) {
-    p <- p + ggtitle(title)
+  if (missing(highlight)) {
+      p <- p + ggtitle(title)
+  } else {
+      p <- p + ggtitle(title, 
+                       subtitle = paste0("Highlighted = ",
+                                         round(pct_sum,2),"%"))
   }
-  
+
   # return result
   p
   

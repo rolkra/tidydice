@@ -210,7 +210,7 @@ binom_dice(times = 100) %>%
   summarise(check_pct = sum(pct))
 ```
 
-The probability to get this result is 0.04% (based on the binomial distribution)
+The probability to get this result is 0.04% (based on the binomial distribution).
 
 #### Combine experiments
 
@@ -239,6 +239,15 @@ roll_dice(times = 100, rounds = 10000, agg = TRUE) %>%
           target = experiment,
           title = "Rolling a dice 100/110/150x",
           auto_scale = FALSE)
+```
+
+#### Binomial distribution
+
+Rolling a dice 100x, a result between 10 and 23 has a probability of over 94%
+
+```{R echo=TRUE, fig.height=4, fig.width=7}
+binom_dice(times = 100) %>% 
+  plot_binom(highlight = c(10:23))
 ```
 
 ### Flip a coin

@@ -1,4 +1,4 @@
-## tidydice 0.0.6 (2019-12-27)
+## tidydice 0.0.6 (DEV)
 
 * improve vignette
 * add function binom()
