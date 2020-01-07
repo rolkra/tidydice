@@ -5,7 +5,8 @@
 \title{Plot a binomial distribution.}
 \usage{
 plot_binom(data, title = "Binomial distribution", color = "darkgrey",
-  label = NULL, label_size = 3, min_pct = 0.05)
+  color_highlight = "red", label = NULL, label_size = 3,
+  min_pct = 0.05, highlight = NULL)
 }
 \arguments{
 \item{data}{data containing values for binomial distribution}
@@ -14,11 +15,15 @@ plot_binom(data, title = "Binomial distribution", color = "darkgrey",
 
 \item{color}{color of bars}
 
+\item{color_highlight}{color of highlighted bars}
+
 \item{label}{add labels to plot?}
 
 \item{label_size}{size of label}
 
 \item{min_pct}{surpress values < min_pct}
+
+\item{highlight}{vector of values to be highlighted}
 }
 \value{
 ggplot object
