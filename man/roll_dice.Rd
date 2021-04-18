@@ -4,8 +4,16 @@
 \alias{roll_dice}
 \title{Simulating rolling a dice.}
 \usage{
-roll_dice(data = NULL, times = 1, rounds = 1, success = c(6),
-  agg = FALSE, sides = 6, prob = NULL, seed = NULL)
+roll_dice(
+  data = NULL,
+  times = 1,
+  rounds = 1,
+  success = c(6),
+  agg = FALSE,
+  sides = 6,
+  prob = NULL,
+  seed = NULL
+)
 }
 \arguments{
 \item{data}{Data from a previous experiment}

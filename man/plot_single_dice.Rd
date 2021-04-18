@@ -4,10 +4,20 @@
 \alias{plot_single_dice}
 \title{Draw a single dice}
 \usage{
-plot_single_dice(ggplot = NULL, result = 6, x = 0, y = 0,
-  width = 0.9, fill = "white", detailed = FALSE,
-  rounding = dice_width/5, line_size = 0.8, line_color = "black",
-  point_size = width/6, point_color = "black")
+plot_single_dice(
+  ggplot = NULL,
+  result = 6,
+  x = 0,
+  y = 0,
+  width = 0.9,
+  fill = "white",
+  detailed = FALSE,
+  rounding = dice_width/5,
+  line_size = 0.8,
+  line_color = "black",
+  point_size = width/6,
+  point_color = "black"
+)
 }
 \arguments{
 \item{ggplot}{ggplot-Object. If passed, the dice will be added to plot}

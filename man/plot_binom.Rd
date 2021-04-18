@@ -4,9 +4,16 @@
 \alias{plot_binom}
 \title{Plot a binomial distribution.}
 \usage{
-plot_binom(data, title = "Binomial distribution", color = "darkgrey",
-  color_highlight = "red", label = NULL, label_size = 3,
-  min_pct = 0.05, highlight = NULL)
+plot_binom(
+  data,
+  title = "Binomial distribution",
+  color = "darkgrey",
+  color_highlight = "red",
+  label = NULL,
+  label_size = 3,
+  min_pct = 0.05,
+  highlight = NULL
+)
 }
 \arguments{
 \item{data}{data containing values for binomial distribution}

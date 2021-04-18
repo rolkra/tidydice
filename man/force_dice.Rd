@@ -4,8 +4,7 @@
 \alias{force_dice}
 \title{Force a dice rolling result.}
 \usage{
-force_dice(data = NULL, result = 6, round = 1, experiment = 1,
-  success = 6)
+force_dice(data = NULL, result = 6, round = 1, experiment = 1, success = 6)
 }
 \arguments{
 \item{data}{Data from a previous experiment}

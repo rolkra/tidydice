@@ -4,8 +4,16 @@
 \alias{flip_coin}
 \title{Simulating flipping a coin.}
 \usage{
-flip_coin(data = NULL, times = 1, rounds = 1, success = c(2),
-  agg = FALSE, sides = 2, prob = NULL, seed = NULL)
+flip_coin(
+  data = NULL,
+  times = 1,
+  rounds = 1,
+  success = c(2),
+  agg = FALSE,
+  sides = 2,
+  prob = NULL,
+  seed = NULL
+)
 }
 \arguments{
 \item{data}{Data from a previous experiment}
