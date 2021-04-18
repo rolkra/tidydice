@@ -12,7 +12,6 @@ Description: Utils for basic statistical experiments, that can be used for teach
     Experiments can be combined with the pipe-operator.
 License: GPL-3
 Encoding: UTF-8
-LazyData: true
 URL: http://github.com/rolkra/tidydice
 Imports: assertthat, dplyr, ggplot2, magrittr, purrr, stats, tibble
 RoxygenNote: 6.1.1
