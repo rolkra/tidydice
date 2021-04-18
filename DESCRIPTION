@@ -16,5 +16,5 @@ URL: http://github.com/rolkra/tidydice
 Imports: assertthat, dplyr, ggplot2, magrittr, purrr, stats, tibble
 RoxygenNote: 6.1.1
 Suggests: 
-    explore, knitr, testthat
+    explore, knitr, rmarkdown, testthat
 VignetteBuilder: knitr
