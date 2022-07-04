@@ -1,4 +1,68 @@
 ##############################################################################
+## roll_dice_formula
+##############################################################################
+#' Simulating rolling a dice, using a formula
+#' 
+#' Example dice_formula:
+#'     1d6      > roll one 6-sided dice
+#'     1d12     > roll one 12-sided dice
+#'     2d6      > roll two 6-sided dice
+#'     1d6e6    > roll one 6-sided dice, explode dice on a 6
+#'     3d6kh2   > roll three 6-sided dice, keep top 2 rolls
+#'     4d6kh3e6 > roll four 6-sided dice, keep top 3 rolls, but explode on a 6
+#'     
+#' @param dice_formula
+#' @param seed
+#' @param agg Aggregate
+#' @param times How many times a dice is rolled (or how many dice are rolled at the same time)
+#' @param rounds Number of rounds   
+roll_dice_formula <- function(dice_formula = "1d6", seed=NULL, agg=FALSE, times = 1, rounds = 1) {
+  assertthat::assert_that(is.character(dice_formula), msg = "dice_formula must be character")
+
+  # check seed parameter
+  if (!missing(seed)) {
+    set.seed(seed)
+  }
+  
+  # Parse first part of the string (1d6)
+  dicestr1 = str_match(string=dice_formula, pattern="(\\d*)d(\\d*)")
+  assertthat::assert_that(is.character(dicestr1[1,1]), 
+                          msg = "dice_formula need to contain at least one d statement")
+  dice_count  = as.numeric(dicestr1[1,2])
+  dice_sides  = as.numeric(dicestr1[1,3])
+  dice_intervals = 1:dice_sides
+  
+  # Parse Exploding Dice
+  dicestr_expl = str_match(string=dice_formula, pattern="e(\\d*)")
+  dice_exploding_number  = as.numeric(dicestr1[1,2])
+  dice_intervals = setdiff(dice_intervals, dice_exploding_number)
+  print(dice_intervals)
+  
+  if (agg){
+    stop("Not Implemented Yet") # Probably implement this as a summarise
+  } else {
+    result_df <- tibble::tibble(
+      round = as.integer(rep(1:rounds, each = times)),
+      nr    = as.integer(rep(1:times, times = rounds)),
+      result = rowSums(
+             matrix(
+                 sample(x = dice_intervals, 
+                    size = dice_count * rounds * times, 
+                    replace = TRUE
+                  ), 
+                  ncol=dice_count)
+                  )
+                ) 
+    if (!is.na(dice_exploding_number)){
+      # Exploding Dice is implemented using a Geom distribution to predict the number of outcomes
+      result_df = result_df %>% 
+        mutate(result2 = result + dice_exploding_number * rgeom(nrow(result_df), 1-1/dice_sides))
+    }
+  }
+  result_df
+}
+
+##############################################################################
 ## roll_dice
 ##############################################################################
 #' Simulating rolling a dice.
