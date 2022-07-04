@@ -34,32 +34,44 @@ roll_dice_formula <- function(dice_formula = "1d6", seed=NULL, agg=FALSE, times 
   
   # Parse Exploding Dice
   dicestr_expl = str_match(string=dice_formula, pattern="e(\\d*)")
-  dice_exploding_number  = as.numeric(dicestr1[1,2])
+  dice_exploding_number  = as.numeric(dicestr_expl[1,2])
   dice_intervals = setdiff(dice_intervals, dice_exploding_number)
-  print(dice_intervals)
-  
+
   if (agg){
     stop("Not Implemented Yet") # Probably implement this as a summarise
   } else {
     result_df <- tibble::tibble(
       round = as.integer(rep(1:rounds, each = times)),
       nr    = as.integer(rep(1:times, times = rounds)),
-      result = rowSums(
-             matrix(
-                 sample(x = dice_intervals, 
-                    size = dice_count * rounds * times, 
-                    replace = TRUE
-                  ), 
-                  ncol=dice_count)
-                  )
-                ) 
+      result_m =
+        matrix(
+          sample(x = dice_intervals, 
+                 size = dice_count * rounds * times, 
+                 replace = TRUE
+          ), 
+          ncol=dice_count),
+      result = apply(
+            result_m,
+                1,
+                top_n_dice, n=10, dec=T
+                )
+              ) 
     if (!is.na(dice_exploding_number)){
       # Exploding Dice is implemented using a Geom distribution to predict the number of outcomes
       result_df = result_df %>% 
-        mutate(result2 = result + dice_exploding_number * rgeom(nrow(result_df), 1-1/dice_sides))
+        mutate(result = result + dice_exploding_number * rgeom(nrow(result_df), 1-1/dice_sides))
     }
   }
   result_df
+}
+
+top_n_dice = function(x, n, dec=F) {
+  print(x)
+  print(n)
+  print(dec)
+  s = sum(x[order(x, decreasing = dec)[1:n]])
+  print(s)
+  s
 }
 
 ##############################################################################
