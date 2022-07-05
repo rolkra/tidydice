@@ -59,19 +59,22 @@ roll_dice_formula <- function(dice_formula = "1d6", seed=NULL, agg=FALSE, times 
     if (!is.na(dice_exploding_number)){
       # Exploding Dice is implemented using a Geom distribution to predict the number of outcomes
       result_df = result_df %>% 
-        mutate(result = result + dice_exploding_number * rgeom(nrow(result_df), 1-1/dice_sides))
+        mutate(result2 = 
+                 result + 
+                 dice_exploding_number * 
+                 rowSums(
+                  matrix(
+                    rgeom(dice_count*nrow(result_df), 1-1/dice_sides), # this prob is wrong, it should scale with the n of dice
+                    ncol=dice_count)
+                  )
+               )
     }
   }
   result_df
 }
 
 top_n_dice = function(x, n, dec=F) {
-  print(x)
-  print(n)
-  print(dec)
-  s = sum(x[order(x, decreasing = dec)[1:n]])
-  print(s)
-  s
+  sum(x[order(x, decreasing = dec)][1:n], na.rm=T)
 }
 
 ##############################################################################
