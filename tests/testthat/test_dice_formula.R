@@ -44,7 +44,7 @@ test_that("exploding dice", {
   expect_equal(nrow(roll_dice_formula("1d6e6")),  1)
   expect_equal(nrow(roll_dice_formula("1d3E2")),  1)
   
-  # Exploding rolls should never be multiple of exploded dice
+  # Exploding rolls should never be multiple of exploded die
   expect_equal(sum( 
     roll_dice_formula("1d7e7", times=200)$result %% 7 == 0),
     0)  
@@ -106,7 +106,7 @@ test_that("Keep High/Low dice", {
   
   # Invalid formulas
   expect_error(roll_dice_formula("2d6kh3"), "invalid kh/kl formula, can't keep more dice than rolled")
-  expect_error(roll_dice_formula("2d6kh0"), "invalid kh/kl formula, can't keep less than 1 dice")
+  expect_error(roll_dice_formula("2d6kh0"), "invalid kh/kl formula, can't keep less than 1 die")
   
   expect_gt(mean(roll_dice_formula("2d15kh1", times=200)$result),
             mean(roll_dice_formula("2d15kl1", times=200)$result)
@@ -177,6 +177,14 @@ test_that("piping", {
 })
 
 test_that("other function parameters", {
+  # Check prob
+  expect_equal(
+    mean(roll_dice_formula("1d3", prob=c(0,0,1))$result),
+    3
+  )
+  expect_error(roll_dice_formula("1d4", prob=c(1,0.2)))
+  expect_error(roll_dice_formula("1d4", prob=c(-1,-1,-1,-1)))
+  
   # Check random seed
   expect_equal(
     roll_dice_formula("1d1000", seed=1234),

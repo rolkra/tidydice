@@ -17,8 +17,10 @@
 #' @param dice_formula 
 #' @param times How many times a dice is rolled (or how many dice are rolled at the same time)
 #' @param rounds Number of rounds 
+#' @param success Which result is a success (default = 6)
 #' @param agg If TRUE, the result is aggregated (by experiment, rounds) (not implemented)
 #' @param sides Number of sides of the dice (default = 6)
+#' @param prob Vector of probabilities for each side of the dice
 #' @param seed Seed to produce reproducible results
 #' @param label Custom text to distinguish an experiment, can be used for plotting etc.
 #' @return Result of experiment as a tibble
@@ -28,6 +30,8 @@ roll_dice_formula <- function(data=NULL,
                               times = 1, 
                               rounds = 1,
                               seed=NULL, 
+                              prob=NULL, 
+                              success = c(6),
                               agg=FALSE,
                               label=NULL
                               ) {
@@ -89,7 +93,7 @@ roll_dice_formula <- function(data=NULL,
   assertthat::assert_that(dice_khl_n <= dice_count, 
                           msg = "invalid kh/kl formula, can't keep more dice than rolled")
   assertthat::assert_that(dice_khl_n > 0, 
-                          msg = "invalid kh/kl formula, can't keep less than 1 dice")
+                          msg = "invalid kh/kl formula, can't keep less than 1 die")
 
   # Parse [+-*/]
   dice_op = str_match(string=dice_formula, pattern="\\s*([+-/*^][*]*)\\s*(\\d*)")
@@ -106,7 +110,8 @@ roll_dice_formula <- function(data=NULL,
         matrix(
           sample(x = dice_intervals, 
                  size = dice_count * rounds * times, 
-                 replace = TRUE
+                 replace = TRUE,
+                 prob=prob
           ), 
           ncol=dice_count),
       result = apply(
@@ -142,11 +147,16 @@ roll_dice_formula <- function(data=NULL,
       )
       
   }
+  # Compute success
+  result_df = result_df %>%
+    mutate(success = result %in% success)
+  
+  # Format the result df before returning it
   result_df = result_df %>% 
     mutate(experiment_id = 1,
            dice_formula = dice_formula,
            label=label) %>%
-    select(experiment_id, dice_formula, label, round, nr, result, -result_m) 
+    select(experiment_id, dice_formula, label, round, nr, result, success, -result_m) 
   
   if (missing(data))  {
     
