@@ -5,37 +5,96 @@
 #' 
 #' Example dice_formula:
 #'     1d6      > roll one 6-sided dice
+#'     1d8      > roll one 8-sided dice
 #'     1d12     > roll one 12-sided dice
 #'     2d6      > roll two 6-sided dice
 #'     1d6e6    > roll one 6-sided dice, explode dice on a 6
 #'     3d6kh2   > roll three 6-sided dice, keep top 2 rolls
+#'     3d6kl2   > roll three 6-sided dice, keep lowest 2 rolls
 #'     4d6kh3e6 > roll four 6-sided dice, keep top 3 rolls, but explode on a 6
+#'     1d20+4   > roll one 20-sided dice, and add 4
 #'     
-#' @param dice_formula
-#' @param seed
-#' @param agg Aggregate
+#' @param dice_formula 
 #' @param times How many times a dice is rolled (or how many dice are rolled at the same time)
-#' @param rounds Number of rounds   
-roll_dice_formula <- function(dice_formula = "1d6", seed=NULL, agg=FALSE, times = 1, rounds = 1) {
+#' @param rounds Number of rounds 
+#' @param agg If TRUE, the result is aggregated (by experiment, rounds) (not implemented)
+#' @param sides Number of sides of the dice (default = 6)
+#' @param seed Seed to produce reproducible results
+#' @param label Custom text to distinguish an experiment, can be used for plotting etc.
+#' @return Result of experiment as a tibble
+#' @import stringr  
+roll_dice_formula <- function(data=NULL,
+                              dice_formula = "1d6", 
+                              times = 1, 
+                              rounds = 1,
+                              seed=NULL, 
+                              agg=FALSE,
+                              label=NULL
+                              ) {
   assertthat::assert_that(is.character(dice_formula), msg = "dice_formula must be character")
 
   # check seed parameter
   if (!missing(seed)) {
     set.seed(seed)
   }
+  # check if first parameter is dice_formula instead of data
+  if (!missing(data) & is.character(data))  {
+    dice_formula <- data
+    data <- NULL
+    assertthat::assert_that(is.character(dice_formula))
+  }
+  if (missing(label)) {
+    label=dice_formula
+  }
+  # check if first parameter is times instead of data
+  if (!missing(data) & is.numeric(data))  {
+    times <- data
+    data <- NULL
+    assertthat::assert_that(times > 0)
+  }
   
-  # Parse first part of the string (1d6)
-  dicestr1 = str_match(string=dice_formula, pattern="(\\d*)d(\\d*)")
+  # Parse Dice Type (1d6)
+  dicestr1 = str_match(string=dice_formula, pattern="(\\d*)?[dD](\\d*)")
   assertthat::assert_that(is.character(dicestr1[1,1]), 
                           msg = "dice_formula need to contain at least one d statement")
   dice_count  = as.numeric(dicestr1[1,2])
+  if (is.na(dice_count)) {dice_count = 1}
   dice_sides  = as.numeric(dicestr1[1,3])
   dice_intervals = 1:dice_sides
+  assertthat::assert_that(dice_count >= 1, 
+                          msg = "cannot roll 0 dice!")
+  assertthat::assert_that(dice_sides >= 1, 
+                          msg = "cannot roll a d0!")
+  
   
   # Parse Exploding Dice
-  dicestr_expl = str_match(string=dice_formula, pattern="e(\\d*)")
+  dicestr_expl = str_match(string=dice_formula, pattern="[eE](\\d*)")
   dice_exploding_number  = as.numeric(dicestr_expl[1,2])
   dice_intervals = setdiff(dice_intervals, dice_exploding_number)
+  if (!is.na(dice_exploding_number)) {
+    assertthat::assert_that(dice_exploding_number <= dice_sides, 
+                            msg = "invalid exploding dice specification")
+    assertthat::assert_that(!((dice_exploding_number == 1) & (dice_sides  %in% 1:2)), 
+                            msg = "1d1e1 and 1d2e1 not implemented")
+  }
+  
+  # Parse Keep Higher/Lower
+  dice_khl = str_match(string=dice_formula, pattern="[kK]([HhlL])(\\d*)")
+  dice_khl_sign = case_when(
+    is.na(dice_khl[1,2]) ~ T,
+    dice_khl[1,2] %in% c("h", "H") ~ T,
+    dice_khl[1,2] %in% c("l", "L") ~ F
+  )
+  dice_khl_n = as.numeric(ifelse(is.na(dice_khl[1,3]), dice_count, dice_khl[1,3]))
+  assertthat::assert_that(dice_khl_n <= dice_count, 
+                          msg = "invalid kh/kl formula, can't keep more dice than rolled")
+  assertthat::assert_that(dice_khl_n > 0, 
+                          msg = "invalid kh/kl formula, can't keep less than 1 dice")
+
+  # Parse [+-*/]
+  dice_op = str_match(string=dice_formula, pattern="\\s*([+-/*^][*]*)\\s*(\\d*)")
+  dice_op_sign = dice_op[1,2]
+  dice_op_n = as.numeric(dice_op[1,3])
 
   if (agg){
     stop("Not Implemented Yet") # Probably implement this as a summarise
@@ -53,13 +112,13 @@ roll_dice_formula <- function(dice_formula = "1d6", seed=NULL, agg=FALSE, times 
       result = apply(
             result_m,
                 1,
-                top_n_dice, n=10, dec=T
+                top_n_dice, n=dice_khl_n, dec=dice_khl_sign
                 )
               ) 
     if (!is.na(dice_exploding_number)){
       # Exploding Dice is implemented using a Geom distribution to predict the number of outcomes
       result_df = result_df %>% 
-        mutate(result2 = 
+        mutate(result = 
                  result + 
                  dice_exploding_number * 
                  rowSums(
@@ -69,8 +128,51 @@ roll_dice_formula <- function(dice_formula = "1d6", seed=NULL, agg=FALSE, times 
                   )
                )
     }
+    # arithmetic operations
+    result_df = result_df %>%
+      mutate(
+        result = case_when(
+          dice_op_sign == "+" ~ result + dice_op_n,
+          dice_op_sign == "-" ~ result - dice_op_n,
+          dice_op_sign == "*" ~ result * dice_op_n,
+          dice_op_sign == "/" ~ result / dice_op_n,
+          dice_op_sign %in% c("^", "**") ~ result ** dice_op_n,
+          T ~ as.numeric(result),
+        )
+      )
+      
   }
-  result_df
+  result_df = result_df %>% 
+    mutate(experiment_id = 1,
+           dice_formula = dice_formula,
+           label=label) %>%
+    select(experiment_id, dice_formula, label, round, nr, result, -result_m) 
+  
+  if (missing(data))  {
+    
+    # result of roll_dice (first experiment)
+    result_df <- result_df %>% 
+      dplyr::mutate(experiment = as.integer(1)) %>% 
+      dplyr::select(experiment, dplyr::everything())
+    result_df
+    
+  } else {
+    
+    # existing experiment variable?
+    max_experiment <- 0L
+    if ("experiment" %in% names(data)) {
+      max_experiment <- max(data$experiment)
+    }
+    
+    # new experiment (+1)
+    result_df <- result_df %>% 
+      dplyr::mutate(experiment = as.integer(max_experiment + 1))
+    
+    # bind result to data (pipe)
+    result_df <- dplyr::bind_rows(data, result_df) %>% 
+      dplyr::select(experiment, dplyr::everything())
+    result_df
+  }
 }
 
 top_n_dice = function(x, n, dec=F) {
