@@ -150,7 +150,31 @@ test_that("arithmetic operations", {
     (sum((1:5)**3)/5), 
     tolerance=0.2)
 })
-
+test_that("piping", {
+  expect_equal(
+    roll_dice_formula("1d5**3", times=20) %>% 
+      roll_dice_formula("1d5**3", times=20) %>%
+      count(experiment) %>%
+      nrow,
+    2)
+  expect_equal(
+    roll_dice_formula("1d5", times=20) %>% 
+      roll_dice_formula("2d4", times=20) %>%
+      count(dice_formula) %>%
+      nrow,
+    2)
+  expect_equal(
+    roll_dice_formula("1d5", times=20) %>% 
+      roll_dice_formula("2d4", times=20) %>%
+      nrow,
+    40)
+  expect_equal(
+    roll_dice_formula("2d20h1", times=20, label="adv") %>% 
+      roll_dice_formula("2d20kl1", times=20, label="dis") %>%
+      count(label) %>%
+      nrow,
+    2) 
+})
 
 test_that("other function parameters", {
   # Check random seed
