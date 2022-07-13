@@ -1,4 +1,64 @@
 ##############################################################################
+## parse_dice_formula_part
+##############################################################################
+parse_dice_formula_part <- function(dice_formula_part){
+  
+  dice_base = str_match_all(
+    string=dice_formula_part,
+    pattern="^(\\d*)?([dD]*)(\\d*)") %>%
+    .[[1]] %>%
+    as_tibble(.name_repair="minimal") %>%
+    set_names(c("raw_set", "operator", "selector", "value")) %>%
+    mutate(value=as.numeric(value)) %>%
+    mutate(
+      value = case_when(
+        is.na(value) ~ as.numeric(operator),
+        T ~ value),
+      operator = case_when(
+        operator == "" ~ "1",
+        T ~ operator
+      )
+    )
+  
+  dice_filters = str_match_all(
+    string=dice_formula_part, 
+    pattern="([kKeEpP]|rr|ro|ra|mi|ma)([HhlL><]*)(\\d*)") %>% 
+    .[[1]] %>%
+    as_tibble(.name_repair="minimal") %>%
+    set_names(c("raw_set", "operator", "selector", "value")) %>%
+    mutate(value=as.numeric(value))
+  
+  
+  bind_rows(
+    dice_base,
+    dice_filters
+  )
+}
+
+##############################################################################
+## parse_dice_formula
+##############################################################################
+#' 
+#' Based on https://github.com/avrae/d20
+parse_dice_formula <- function(dice_formula) {
+
+  tibble(dice_formula_part = c(str_split(string=dice_formula, pattern = "\\s*[+*-/]\\s*", simplify=T))) %>% 
+    rowwise %>% 
+    mutate(parts = list(parse_dice_formula_part(dice_formula_part))) %>% 
+    unnest(parts)
+  
+
+# 
+#   dice_ops = str_match_all(
+#       string=dice_formula,
+#       pattern="\\s*([+-/*^][*]*)(\\s*)(\\d*)") %>%
+#     .[[1]] %>%
+#     as_tibble(.name_repair="minimal") %>%
+#     set_names(c("raw_set", "operator", "selector", "value")) %>%
+#     mutate(value=as.numeric(value))
+  
+}
+##############################################################################
 ## roll_dice_formula
 ##############################################################################
 #' Simulating rolling a dice, using a formula
@@ -80,6 +140,8 @@ roll_dice_formula <- function(data=NULL,
                             msg = "invalid exploding dice specification")
     assertthat::assert_that(!((dice_exploding_number == 1) & (dice_sides  %in% 1:2)), 
                             msg = "1d1e1 and 1d2e1 not implemented")
+  } else {
+    dice_exploding_number = 0
   }
   
   # Parse Keep Higher/Lower
@@ -106,6 +168,16 @@ roll_dice_formula <- function(data=NULL,
     result_df <- tibble::tibble(
       round = as.integer(rep(1:rounds, each = times)),
       nr    = as.integer(rep(1:times, times = rounds)),
+      result_t = 
+        tibble(
+          round = as.integer(rep(1:rounds, each = times)),
+          nr    = as.integer(rep(1:times, times = rounds)),
+          diceroll = list(
+            c(
+              sample( x = dice_intervals, size=dice_count, replace=T), 
+              rep(dice_exploding_number, times = dice_exploding_number*rgeom(1, 1-1/2))
+            )
+        )),
       result_m =
         matrix(
           sample(x = dice_intervals, 
