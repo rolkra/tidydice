@@ -46,8 +46,11 @@ parse_dice_formula_part <- function(dice_formula_part){
 #' @import tibble
 parse_dice_formula <- function(dice_formula) {
 
+  dice_formula = str_replace_all(dice_formula, "\\s", "")
   tibble(subgroup_formula = str_match_all(dice_formula, 
-        "([+-/*])*(\\d*d?\\d+)([kKeEpP]|rr|ro|ra|mi|ma)*([HhlL><]*)(\\d*)*")[[1]][,1]) %>%
+  #      "([+-/*])*(\\d*d?\\d+)([kKeEpP]|rr|ro|ra|mi|ma)*([HhlL><]*)*(\\d*)*")
+        "([+-/*])*(\\d*d?\\d+)(.*[^+-/*])")
+  [[1]][,1]) %>%
       rownames_to_column("subgroup_id") %>%
       rowwise %>% 
       mutate(
