@@ -46,36 +46,24 @@ parse_dice_formula_part <- function(dice_formula_part){
 #' @import tibble
 parse_dice_formula <- function(dice_formula) {
 
+  # Remove whitespaces and add a "+" to simplify regex parsing
   dice_formula = str_replace_all(dice_formula, "\\s", "")
-  tibble(subgroup_formula = str_match_all(dice_formula, 
-  #      "([+-/*])*(\\d*d?\\d+)([kKeEpP]|rr|ro|ra|mi|ma)*([HhlL><]*)*(\\d*)*")
-        "([+-/*])*(\\d*d?\\d+)(.*[^+-/*])")
-  [[1]][,1]) %>%
+  dice_formula = 
+    ifelse(is.na(str_match(dice_formula, "^[+-/*]")[1]), 
+                        paste0("+", dice_formula),
+                        dice_formula)
+  
+  # Split dice_formula, then parse each substring
+  tibble(subgroup_formula = str_split(dice_formula, 
+        "([+-/*])", simplify=T)[-1],
+        subgroup_sign = str_extract_all(dice_formula, "([+-/*])")[[1]]) %>%
+      unnest(c(subgroup_formula, subgroup_sign)) %>%
       rownames_to_column("subgroup_id") %>%
       rowwise %>% 
       mutate(
-         subgroup_sign = 
-             str_match(subgroup_formula, "([+-/*]?)")[1],
-         subgroup_sign = case_when(subgroup_sign == "" ~ "+",
-                                   T ~ subgroup_sign),
          parts = list(parse_dice_formula_part(subgroup_formula))) %>% 
       unnest(parts)
-  # tibble(dice_formula_part = c(
-  #   str_split(string=dice_formula, pattern = "\\s*[+*-/]\\s*", simplify=T))) %>% 
-  #   rowwise %>% 
-  #   mutate(parts = list(parse_dice_formula_part(dice_formula_part))) %>% 
-  #   unnest(parts)
-  # 
 
-# 
-#   dice_ops = str_match_all(
-#       string=dice_formula,
-#       pattern="\\s*([+-/*^][*]*)(\\s*)(\\d*)") %>%
-#     .[[1]] %>%
-#     as_tibble(.name_repair="minimal") %>%
-#     set_names(c("raw_set", "operator", "selector", "value")) %>%
-#     mutate(value=as.numeric(value))
-  
 }
 ##############################################################################
 ## roll_dice_formula
