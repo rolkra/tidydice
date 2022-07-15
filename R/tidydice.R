@@ -2,14 +2,16 @@
 ## parse_dice_formula_part
 ##############################################################################
 parse_dice_formula_part <- function(dice_formula_part){
-  
+
+
   dice_base = str_match_all(
     string=dice_formula_part,
-    pattern="^(\\d*)?([dD]*)(\\d*)") %>%
+    pattern="^([+-/*]?)(\\d*)?([dD]*)(\\d*)") %>%
     .[[1]] %>%
     as_tibble(.name_repair="minimal") %>%
-    set_names(c("raw_set", "operator", "selector", "value")) %>%
+    purrr::set_names(c("raw_set", "sign", "operator", "selector", "value")) %>%
     mutate(value=as.numeric(value)) %>%
+    select(-sign) %>%
     mutate(
       value = case_when(
         is.na(value) ~ as.numeric(operator),
@@ -19,20 +21,19 @@ parse_dice_formula_part <- function(dice_formula_part){
         T ~ operator
       )
     )
-  
+
   dice_filters = str_match_all(
     string=dice_formula_part, 
     pattern="([kKeEpP]|rr|ro|ra|mi|ma)([HhlL><]*)(\\d*)") %>% 
     .[[1]] %>%
     as_tibble(.name_repair="minimal") %>%
-    set_names(c("raw_set", "operator", "selector", "value")) %>%
+    purrr::set_names(c("raw_set", "operator", "selector", "value")) %>%
     mutate(value=as.numeric(value))
-  
   
   bind_rows(
     dice_base,
     dice_filters
-  )
+  ) 
 }
 
 ##############################################################################
@@ -40,13 +41,28 @@ parse_dice_formula_part <- function(dice_formula_part){
 ##############################################################################
 #' 
 #' Based on https://github.com/avrae/d20
+#' 
+#' @import tidyr
+#' @import tibble
 parse_dice_formula <- function(dice_formula) {
 
-  tibble(dice_formula_part = c(str_split(string=dice_formula, pattern = "\\s*[+*-/]\\s*", simplify=T))) %>% 
-    rowwise %>% 
-    mutate(parts = list(parse_dice_formula_part(dice_formula_part))) %>% 
-    unnest(parts)
-  
+  tibble(subgroup_formula = str_match_all(dice_formula, 
+        "([+-/*])*(\\d*d?\\d+)([kKeEpP]|rr|ro|ra|mi|ma)*([HhlL><]*)(\\d*)*")[[1]][,1]) %>%
+      rownames_to_column("subgroup_id") %>%
+      rowwise %>% 
+      mutate(
+         subgroup_sign = 
+             str_match(subgroup_formula, "([+-/*]?)")[1],
+         subgroup_sign = case_when(subgroup_sign == "" ~ "+",
+                                   T ~ subgroup_sign),
+         parts = list(parse_dice_formula_part(subgroup_formula))) %>% 
+      unnest(parts)
+  # tibble(dice_formula_part = c(
+  #   str_split(string=dice_formula, pattern = "\\s*[+*-/]\\s*", simplify=T))) %>% 
+  #   rowwise %>% 
+  #   mutate(parts = list(parse_dice_formula_part(dice_formula_part))) %>% 
+  #   unnest(parts)
+  # 
 
 # 
 #   dice_ops = str_match_all(
@@ -73,6 +89,7 @@ parse_dice_formula <- function(dice_formula) {
 #'     3d6kl2   > roll three 6-sided dice, keep lowest 2 rolls
 #'     4d6kh3e6 > roll four 6-sided dice, keep top 3 rolls, but explode on a 6
 #'     1d20+4   > roll one 20-sided dice, and add 4
+#'     1d4+1d6  > roll one 4-sided dice and one 6-sided dice, and sum the results
 #'     
 #' @param dice_formula 
 #' @param times How many times a dice is rolled (or how many dice are rolled at the same time)
