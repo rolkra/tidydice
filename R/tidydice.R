@@ -47,7 +47,16 @@ parse_dice_formula_part <- function(dice_formula_part){
 ##############################################################################
 #' 
 #' Given a dice formula string, split it and return a dataframe with the list 
-#' of functions
+#' of functions.
+#'
+#' This is the main function to parse a string containing complex formula 
+#' specifications for rolling dice.
+#' 
+#' The input can be a string containing specifications for multiple dice, e.g.:
+#' - 1d6e6          -> roll 1 six-sided dice, explode on 6
+#' - 1d6e6+2d4-1d10 -> Roll 1 six-sided dice, explode on 6, plus two 4-sided 
+#'                    dice, subract one 10-sided dice
+#' 
 #' 
 #' This is inspired by Avrae's bot syntax for rolling dice. See https://github.com/avrae/d20
 #' 
@@ -80,6 +89,12 @@ parse_dice_formula <- function(dice_formula) {
       unnest(parts)
 
 }
+
+roll_dice_part <- function(current_set = c(), specs=c()){
+  
+}
+
+
 ##############################################################################
 ## roll_dice_formula
 ##############################################################################
