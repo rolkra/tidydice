@@ -8,7 +8,7 @@ test_that("parse_dice_formula works correctly", {
   formula_df = parse_dice_formula(dice_formula)
   expected_output = tribble(
     ~subgroup_id, ~subgroup_formula, ~subgroup_sign, ~raw_set, ~operator, ~selector, ~value,
-    "1", "11d44", "+", "11d44", "11", "d", 44
+    1, "+11d44", "+", "11d44", "11", "d", 44
   )
   expect_equal(formula_df, expected_output)
   
@@ -16,7 +16,7 @@ test_that("parse_dice_formula works correctly", {
   formula_df = parse_dice_formula(dice_formula)
   expected_output = tribble(
     ~subgroup_id, ~subgroup_formula, ~subgroup_sign, ~raw_set, ~operator, ~selector, ~value,
-    "1", "-2d9", "-", "-2d9", "2", "d", 9
+    1, "-2d9", "-", "2d9", "2", "d", 9
   )
   expect_equal(formula_df, expected_output)
   
@@ -25,8 +25,8 @@ test_that("parse_dice_formula works correctly", {
   formula_df = parse_dice_formula(dice_formula)
   expected_output = tribble(
     ~subgroup_id, ~subgroup_formula, ~subgroup_sign, ~raw_set, ~operator, ~selector, ~value,
-    "1", "*1d5rr>2", "*", "*1d5", "1", "d", 5,
-    "1", "*1d5rr>2", "*", "rr>2", "rr", ">", 2
+    1, "*1d5rr>2", "*", "1d5", "1", "d", 5,
+    1, "*1d5rr>2", "*", "rr>2", "rr", ">", 2
   )
   expect_equal(formula_df, expected_output)
   
@@ -35,10 +35,10 @@ test_that("parse_dice_formula works correctly", {
   formula_df = parse_dice_formula(dice_formula) 
   expected_output = tribble(
     ~subgroup_id, ~subgroup_formula, ~subgroup_sign, ~raw_set, ~operator, ~selector, ~value,
-    "1", "1d5e2e3rr<2", "+", "1d5", "1", "d", 5,
-    "1", "1d5e2e3rr<2", "+", "e2", "e", "", 2,
-    "1", "1d5e2e3rr<2", "+", "e3", "e", "", 3,
-    "1", "1d5e2e3rr<2", "+", "rr<2", "rr", "<", 2
+    1, "+1d5e2e3rr<2", "+", "1d5", "1", "d", 5,
+    1, "+1d5e2e3rr<2", "+", "e2", "e", "", 2,
+    1, "+1d5e2e3rr<2", "+", "e3", "e", "", 3,
+    1, "+1d5e2e3rr<2", "+", "rr<2", "rr", "<", 2
   )
   expect_equal(formula_df, expected_output)
   
@@ -47,16 +47,42 @@ test_that("parse_dice_formula works correctly", {
   formula_df = parse_dice_formula(dice_formula)
   expected_output = tribble(
     ~subgroup_id, ~subgroup_formula, ~subgroup_sign, ~raw_set, ~operator, ~selector, ~value,
-    "1", "1d3", "+", "1d3", "1", "d", 3,
-    "2", "+9d11e3rr>6", "+", "9d11", "9", "d", 11,
-    "2", "+9d11e3rr>6", "+", "e3", "r", "", 3,
-    "2", "+9d11e3rr>6", "+", "rr>6", "rr", ">", 6
+    1, "+1d3",        "+", "1d3",   "1", "d", 3,
+    2, "+9d11e3rr>6", "+", "9d11",  "9", "d", 11,
+    2, "+9d11e3rr>6", "+", "e3",    "e", "",   3,
+    2, "+9d11e3rr>6", "+", "rr>6",  "rr", ">", 6
   )
   expect_equal(formula_df, expected_output)
   
-  
-  dice_formula = "d4-1d5e2+1d2rr3-1d2kl2p<4*3d2+9+9+d98"
+  dice_formula = "d4-1d5e2+1d2rr3-d2kl2p<4*3d2+9/9+d98"
   formula_df = parse_dice_formula(dice_formula)
+  expected_output = tribble(
+    ~subgroup_id, ~subgroup_formula, ~subgroup_sign, ~raw_set, ~operator, ~selector, ~value,
+    1,   "+d4",       "+",    "d4",    "1",    "d",   4,
+    2,   "-1d5e2",    "-",    "1d5",   "1",    "d",   5,
+    2,   "-1d5e2",    "-",    "e2",    "e",    "",   2,
+    3,   "+1d2rr3",   "+",    "1d2",   "1",    "d",   2,
+    3,   "+1d2rr3",   "+",    "rr3",   "rr",    "",   3,
+    4,   "-d2kl2p<4", "-",    "d2",    "1",    "d",   2,
+    4,   "-d2kl2p<4", "-",    "kl2",   "k",    "l",   2,
+    4,   "-d2kl2p<4", "-",    "p<4",   "p",    "<",   4,
+    5,   "*3d2",      "*",    "3d2",   "3",    "d",   2,
+    6,   "+9",        "+",    "9",     "9",    "",   9,
+    7,   "/9",        "/",    "9",     "9",    "",   9,
+    8,   "+d98",      "+",    "d98",   "1",    "d",   98,
+  )
+  expect_equal(formula_df, expected_output)
+  
+  # Same as previous, but with spaces
+  dice_formula = "d4- 1d5e2+ 1d2rr3   - d2kl2p<4 * 3d2+9/9+d98"
+  formula_df = parse_dice_formula(dice_formula)
+  expect_equal(formula_df, expected_output)
+  
+  # Same as previous, but with even more spaces
+  dice_formula = "d 4- 1d5 e2+ 1d2 rr3   - d2kl 2 p<4 * 3d2+9 / 9+ d 9 8"
+  formula_df = parse_dice_formula(dice_formula)
+  expect_equal(formula_df, expected_output)
+  
 })
 
 test_that("base dice formula works correctly", {

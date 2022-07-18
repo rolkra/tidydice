@@ -46,7 +46,7 @@ parse_dice_formula_part <- function(dice_formula_part){
 #' @import tibble
 parse_dice_formula <- function(dice_formula) {
 
-  # Remove whitespaces and add a "+" to simplify regex parsing
+  # To simplify Regex parsing, Remove whitespaces and add a default "+"
   dice_formula = str_replace_all(dice_formula, "\\s", "")
   dice_formula = 
     ifelse(is.na(str_match(dice_formula, "^[+-/*]")[1]), 
@@ -62,6 +62,9 @@ parse_dice_formula <- function(dice_formula) {
       rowwise %>% 
       mutate(
          parts = list(parse_dice_formula_part(subgroup_formula))) %>% 
+      mutate(
+        subgroup_id = as.integer(subgroup_id), 
+        subgroup_formula = paste0(subgroup_sign, subgroup_formula)) %>%
       unnest(parts)
 
 }
