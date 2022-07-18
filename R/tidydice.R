@@ -1,6 +1,12 @@
 ##############################################################################
 ## parse_dice_formula_part
 ##############################################################################
+#' 
+#' Helper function to parse a dice formula 
+#'
+#' @param dice_formula_part A split dice formula, e.g. 1d6e2. For more complex 
+#'  formula, e.g. 1d6e2+3d4, see parse_dice_formula
+#'  
 parse_dice_formula_part <- function(dice_formula_part){
 
 
@@ -40,10 +46,16 @@ parse_dice_formula_part <- function(dice_formula_part){
 ## parse_dice_formula
 ##############################################################################
 #' 
-#' Based on https://github.com/avrae/d20
+#' Given a dice formula string, split it and return a dataframe with the list 
+#' of functions
 #' 
+#' This is inspired by Avrae's bot syntax for rolling dice. See https://github.com/avrae/d20
+#' 
+#' @param dice_formula A string containing a dice formula, e.g. 1d6e2+1d4
 #' @import tidyr
 #' @import tibble
+#' @import stringr
+#' @export
 parse_dice_formula <- function(dice_formula) {
 
   # To simplify Regex parsing, Remove whitespaces and add a default "+"
