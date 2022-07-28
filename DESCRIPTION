@@ -1,7 +1,12 @@
 Package: tidydice
 Type: Package
 Title: Simulates Dice Rolls and Coin Flips
-Version: 0.1.0
+Version: 0.2.0.9000
+Authors@R: c(
+    person("Roland", "Krasser", role = c("aut", "cre"),
+           email = "roland.krasser@gmail.com"),
+    person("Giovanni Marco", "Dall'Olio", role = "aut")
+  )
 Author: Roland Krasser
 Maintainer: Roland Krasser <roland.krasser@gmail.com>
 Description: Utils for basic statistical experiments, that can be used for teaching 
@@ -18,3 +23,4 @@ RoxygenNote: 7.2.0
 Suggests: 
     explore, knitr, rmarkdown, testthat
 VignetteBuilder: knitr
+Roxygen: list(markdown = TRUE)
