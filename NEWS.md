@@ -1,3 +1,7 @@
+## tidydice 1.0.0 (dev)
+
+* add function roll_dice_formula()
+
 ## tidydice 0.0.6 (2020-01-07)
 
 * improve vignette

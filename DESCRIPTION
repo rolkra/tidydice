@@ -1,7 +1,7 @@
 Package: tidydice
 Type: Package
 Title: Simulates Dice Rolls and Coin Flips
-Version: 0.2.0.9000
+Version: 1.0.0.9000
 Authors@R: c(
     person("Roland", "Krasser", role = c("aut", "cre"),
            email = "roland.krasser@gmail.com"),
