@@ -36,7 +36,7 @@ plot_binom(
 ggplot object
 }
 \description{
-Plot a binomial distribution generated with dice_binom() or coin_binom()
+Plot a binomial distribution generated with binom_dice() or binom_coin()
 }
 \examples{
 plot_binom(data = binom_dice(times = 10))

@@ -1,6 +1,7 @@
 ## tidydice 1.0.0 (dev)
 
-* add function roll_dice_formula()
+* add roll_dice_formula()
+* fix help plot_binom()
 
 ## tidydice 0.0.6 (2020-01-07)
 

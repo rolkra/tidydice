@@ -95,7 +95,7 @@ binom <- function(times, prob_success) {
 
 #' Plot a binomial distribution.
 #'
-#' Plot a binomial distribution generated with dice_binom() or coin_binom()
+#' Plot a binomial distribution generated with binom_dice() or binom_coin()
 #'
 #' @param data data containing values for binomial distribution
 #' @param title title of the plot
