@@ -191,9 +191,6 @@ roll_dice_formula <- function(data=NULL,
   dice_op_sign = dice_op[1,2]
   dice_op_n = as.numeric(dice_op[1,3])
 
-  if (agg){
-    stop("Not Implemented Yet") # Probably implement this as a summarise
-  } else {
     result_df <- tibble::tibble(
       round = as.integer(rep(1:rounds, each = times)),
       nr    = as.integer(rep(1:times, times = rounds)),
@@ -247,7 +244,6 @@ roll_dice_formula <- function(data=NULL,
         )
       )
       
-  }
   # Compute success
   result_df = result_df %>%
     mutate(success = result %in% success)
@@ -264,8 +260,8 @@ roll_dice_formula <- function(data=NULL,
     # result of roll_dice (first experiment)
     result_df <- result_df %>% 
       dplyr::mutate(experiment = as.integer(1)) %>% 
-      dplyr::select(experiment, dplyr::everything())
-    result_df
+      dplyr::select(experiment, dplyr::everything()) %>%
+      dplyr::select(-experiment_id)
     
   } else {
     
@@ -281,9 +277,25 @@ roll_dice_formula <- function(data=NULL,
     
     # bind result to data (pipe)
     result_df <- dplyr::bind_rows(data, result_df) %>% 
-      dplyr::select(experiment, dplyr::everything())
-    result_df
+      dplyr::select(experiment, dplyr::everything()) %>%
+      dplyr::select(-experiment_id)
   }
+  
+  # agg?
+  if (agg)  {
+    
+    result_df <- result_df %>%
+      dplyr::group_by(experiment, round) %>%
+      summarize(
+        dice_formula = min(dice_formula),
+        times = n(),
+        success = as.integer(sum(success))
+      )
+  }
+  
+  # return data frame
+  result_df
+  
 }
 
 top_n_dice = function(x, n, dec=F) {

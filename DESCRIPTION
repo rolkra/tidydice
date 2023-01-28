@@ -1,7 +1,7 @@
 Package: tidydice
 Type: Package
 Title: Simulates Dice Rolls and Coin Flips
-Version: 1.0.0.9000
+Version: 1.0.0
 Authors@R: c(
     person("Roland", "Krasser", role = c("aut", "cre"),
            email = "roland.krasser@gmail.com"),
@@ -18,7 +18,7 @@ Description: Utils for basic statistical experiments, that can be used for teach
 License: GPL-3
 Encoding: UTF-8
 URL: http://github.com/rolkra/tidydice
-Imports: assertthat, dplyr, ggplot2, magrittr, purrr, stats, tibble
+Imports: assertthat, dplyr, ggplot2, magrittr, purrr, stats, stringr, tibble, tidyr
 RoxygenNote: 7.2.1
 Suggests: 
     explore, knitr, rmarkdown, testthat
