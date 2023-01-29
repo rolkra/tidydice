@@ -32,9 +32,12 @@ parse_dice_formula_part <- function(dice_formula_part){
 
   dice_filters = str_match_all(
     string=dice_formula_part, 
-    pattern="([kKeEpP]|rr|ro|ra|mi|ma)([HhlL><]*)(\\d*)") %>% 
-    .[[1]] %>%
-    as_tibble(.name_repair="minimal") %>%
+    pattern="([kKeEpP]|rr|ro|ra|mi|ma)([HhlL><]*)(\\d*)") 
+  
+  dice_filters <- dice_filters[[1]]
+  
+  dice_filters <- dice_filters %>% 
+    tibble::as_tibble(.name_repair="minimal") %>%
     purrr::set_names(c("raw_set", "operator", "selector", "value")) %>%
     mutate(value=as.numeric(value))
   
