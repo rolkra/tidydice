@@ -7,8 +7,7 @@
 parse_dice_formula_part(dice_formula_part)
 }
 \arguments{
-\item{dice_formula_part}{A split dice formula, e.g. 1d6e2. For more complex
-formula, e.g. 1d6e2+3d4, see parse_dice_formula}
+\item{dice_formula_part}{A split dice formula, e.g. 1d6e2. For more complex formula, e.g. 1d6e2+3d4, see parse_dice_formula}
 }
 \description{
 Helper function to parse a dice formula

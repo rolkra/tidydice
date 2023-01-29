@@ -1,16 +1,20 @@
 #' Helper function to parse a dice formula 
 #'
-#' @param dice_formula_part A split dice formula, e.g. 1d6e2. For more complex 
-#'  formula, e.g. 1d6e2+3d4, see parse_dice_formula
+#' @param dice_formula_part A split dice formula, e.g. 1d6e2. For more complex formula, e.g. 1d6e2+3d4, see parse_dice_formula
+#' @import dplyr
+#' @import stringr
 
 parse_dice_formula_part <- function(dice_formula_part){
 
+  # define variables to pass CRAN checks
+  value <- NULL
 
   dice_base = str_match_all(
     string=dice_formula_part,
     pattern="^([+-/*]?)(\\d*)?([dD]*)(\\d*)") %>%
-    .[[1]] %>%
-    as_tibble(.name_repair="minimal") %>%
+    #.[[1]] %>%
+    pull(1) %>%
+    tibble::as_tibble(.name_repair="minimal") %>%
     purrr::set_names(c("raw_set", "sign", "operator", "selector", "value")) %>%
     mutate(value=as.numeric(value)) %>%
     select(-sign) %>%
@@ -53,13 +57,19 @@ parse_dice_formula_part <- function(dice_formula_part){
 #' This is inspired by Avrae's bot syntax for rolling dice. See https://github.com/avrae/d20
 #' 
 #' @param dice_formula A string containing a dice formula, e.g. 1d6e2+1d4
-#' @import tidyr
-#' @import tibble
+#' @importFrom tidyr unnest
+#' @importFrom tibble tibble
 #' @import stringr
 #' @export
 
 parse_dice_formula <- function(dice_formula) {
 
+  # define variables to pass CRAN checks
+  subgroup_formula <- NULL
+  subgroup_sign <- NULL
+  subgroup_id <- NULL
+  parts <- NULL
+  
   # To simplify Regex parsing, Remove whitespaces and add a default "+"
   dice_formula = str_replace_all(dice_formula, "\\s", "")
   dice_formula = 
@@ -101,17 +111,18 @@ parse_dice_formula <- function(dice_formula) {
 #' - 1d20+4   > roll one 20-sided dice, and add 4
 #' - 1d4+1d6  > roll one 4-sided dice and one 6-sided dice, and sum the results
 #'     
+#' @param data Data from a previous experiment
 #' @param dice_formula 
 #' @param times How many times a dice is rolled (or how many dice are rolled at the same time)
 #' @param rounds Number of rounds 
 #' @param success Which result is a success (default = 6)
 #' @param agg If TRUE, the result is aggregated (by experiment, rounds) (not implemented)
-#' @param sides Number of sides of the dice (default = 6)
 #' @param prob Vector of probabilities for each side of the dice
 #' @param seed Seed to produce reproducible results
 #' @param label Custom text to distinguish an experiment, can be used for plotting etc.
 #' @return Result of experiment as a tibble
 #' @import stringr
+#' @importFrom stats rgeom
 #' @export
   
 roll_dice_formula <- function(data=NULL,
@@ -145,6 +156,13 @@ roll_dice_formula <- function(data=NULL,
     data <- NULL
     assertthat::assert_that(times > 0)
   }
+
+  # define variables to pass CRAN checks
+  result_m <- NULL
+  result <- NULL
+  experiment_id <- NULL
+  experiment <- NULL
+  nr <- NULL
   
   # Parse Dice Type (1d6)
   dicestr1 = str_match(string=dice_formula, pattern="(\\d*)?[dD](\\d*)")
@@ -201,7 +219,7 @@ roll_dice_formula <- function(data=NULL,
           diceroll = list(
             c(
               sample( x = dice_intervals, size=dice_count, replace=T), 
-              rep(dice_exploding_number, times = dice_exploding_number*rgeom(1, 1-1/2))
+              rep(dice_exploding_number, times = dice_exploding_number * stats::rgeom(1, 1-1/2))
             )
         )),
       result_m =
@@ -297,6 +315,11 @@ roll_dice_formula <- function(data=NULL,
   result_df
   
 }
+
+#' Helper function to get sum of top n dice 
+#'
+#' @param x Vector of dice-values
+#' @param n Number of dice
 
 top_n_dice = function(x, n, dec=F) {
   sum(x[order(x, decreasing = dec)][1:n], na.rm=T)

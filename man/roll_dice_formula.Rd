@@ -17,6 +17,8 @@ roll_dice_formula(
 )
 }
 \arguments{
+\item{data}{Data from a previous experiment}
+
 \item{dice_formula}{}
 
 \item{times}{How many times a dice is rolled (or how many dice are rolled at the same time)}
@@ -32,8 +34,6 @@ roll_dice_formula(
 \item{agg}{If TRUE, the result is aggregated (by experiment, rounds) (not implemented)}
 
 \item{label}{Custom text to distinguish an experiment, can be used for plotting etc.}
-
-\item{sides}{Number of sides of the dice (default = 6)}
 }
 \value{
 Result of experiment as a tibble
