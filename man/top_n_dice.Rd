@@ -10,6 +10,8 @@ top_n_dice(x, n, dec = F)
 \item{x}{Vector of dice-values}
 
 \item{n}{Number of dice}
+
+\item{dec}{Decreasing}
 }
 \description{
 Helper function to get sum of top n dice

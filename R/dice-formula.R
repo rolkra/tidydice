@@ -58,7 +58,7 @@ parse_dice_formula_part <- function(dice_formula_part){
 #' 
 #' @param dice_formula A string containing a dice formula, e.g. 1d6e2+1d4
 #' @importFrom tidyr unnest
-#' @importFrom tibble tibble
+#' @importFrom tibble tibble rownames_to_column
 #' @import stringr
 #' @export
 
@@ -78,11 +78,11 @@ parse_dice_formula <- function(dice_formula) {
                         dice_formula)
   
   # Split dice_formula, then parse each substring
-  tibble(subgroup_formula = str_split(dice_formula, 
+  tibble::tibble(subgroup_formula = str_split(dice_formula, 
         "([+-/*])", simplify=T)[-1],
         subgroup_sign = str_extract_all(dice_formula, "([+-/*])")[[1]]) %>%
       unnest(c(subgroup_formula, subgroup_sign)) %>%
-      rownames_to_column("subgroup_id") %>%
+      tibble::rownames_to_column("subgroup_id") %>%
       rowwise %>% 
       mutate(
          parts = list(parse_dice_formula_part(subgroup_formula))) %>% 
@@ -320,6 +320,7 @@ roll_dice_formula <- function(data=NULL,
 #'
 #' @param x Vector of dice-values
 #' @param n Number of dice
+#' @param dec Decreasing
 
 top_n_dice = function(x, n, dec=F) {
   sum(x[order(x, decreasing = dec)][1:n], na.rm=T)
