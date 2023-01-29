@@ -6,7 +6,7 @@ test_that("parse_dice_formula works correctly", {
   
   dice_formula = "11d44"
   formula_df = parse_dice_formula(dice_formula)
-  expected_output = tribble(
+  expected_output = tibble::tribble(
     ~subgroup_id, ~subgroup_formula, ~subgroup_sign, ~raw_set, ~operator, ~selector, ~value,
     1, "+11d44", "+", "11d44", "11", "d", 44
   )
@@ -14,7 +14,7 @@ test_that("parse_dice_formula works correctly", {
   
   dice_formula = "-2d9"
   formula_df = parse_dice_formula(dice_formula)
-  expected_output = tribble(
+  expected_output = tibble::tribble(
     ~subgroup_id, ~subgroup_formula, ~subgroup_sign, ~raw_set, ~operator, ~selector, ~value,
     1, "-2d9", "-", "2d9", "2", "d", 9
   )
@@ -23,7 +23,7 @@ test_that("parse_dice_formula works correctly", {
   # one group, two operations
   dice_formula = "*1d5rr>2"
   formula_df = parse_dice_formula(dice_formula)
-  expected_output = tribble(
+  expected_output = tibble::tribble(
     ~subgroup_id, ~subgroup_formula, ~subgroup_sign, ~raw_set, ~operator, ~selector, ~value,
     1, "*1d5rr>2", "*", "1d5", "1", "d", 5,
     1, "*1d5rr>2", "*", "rr>2", "rr", ">", 2
@@ -33,7 +33,7 @@ test_that("parse_dice_formula works correctly", {
   # one group, multiple operations
   dice_formula = "1d5e2e3rr<2";   
   formula_df = parse_dice_formula(dice_formula) 
-  expected_output = tribble(
+  expected_output = tibble::tribble(
     ~subgroup_id, ~subgroup_formula, ~subgroup_sign, ~raw_set, ~operator, ~selector, ~value,
     1, "+1d5e2e3rr<2", "+", "1d5", "1", "d", 5,
     1, "+1d5e2e3rr<2", "+", "e2", "e", "", 2,
@@ -45,7 +45,7 @@ test_that("parse_dice_formula works correctly", {
   # Two groups, with multiple operations
   dice_formula = "1d3+9d11e3rr>6"
   formula_df = parse_dice_formula(dice_formula)
-  expected_output = tribble(
+  expected_output = tibble::tribble(
     ~subgroup_id, ~subgroup_formula, ~subgroup_sign, ~raw_set, ~operator, ~selector, ~value,
     1, "+1d3",        "+", "1d3",   "1", "d", 3,
     2, "+9d11e3rr>6", "+", "9d11",  "9", "d", 11,
@@ -56,7 +56,7 @@ test_that("parse_dice_formula works correctly", {
   
   dice_formula = "d4-1d5e2+1d2rr3-d2kl2p<4*3d2+9/9+d98"
   formula_df = parse_dice_formula(dice_formula)
-  expected_output = tribble(
+  expected_output = tibble::tribble(
     ~subgroup_id, ~subgroup_formula, ~subgroup_sign, ~raw_set, ~operator, ~selector, ~value,
     1,   "+d4",       "+",    "d4",    "1",    "d",   4,
     2,   "-1d5e2",    "-",    "1d5",   "1",    "d",   5,

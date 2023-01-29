@@ -11,9 +11,11 @@ parse_dice_formula_part <- function(dice_formula_part){
 
   dice_base = str_match_all(
     string=dice_formula_part,
-    pattern="^([+-/*]?)(\\d*)?([dD]*)(\\d*)") %>%
-    #.[[1]] %>%
-    pull(1) %>%
+    pattern="^([+-/*]?)(\\d*)?([dD]*)(\\d*)") 
+  
+  dice_base <- dice_base[[1]]
+  
+  dice_base <- dice_base %>% 
     tibble::as_tibble(.name_repair="minimal") %>%
     purrr::set_names(c("raw_set", "sign", "operator", "selector", "value")) %>%
     mutate(value=as.numeric(value)) %>%
