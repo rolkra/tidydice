@@ -389,3 +389,52 @@ force_dice(rep(6, times = 3)) %>%
 ```
 
 In the first experiment we get 3 times a 6 (forced), but in the second experiment none.
+
+### Using Dice Formula
+
+If you want to do more complex dice rolls, use ```roll_dice_formula()```
+
+```{r}
+# roll 1 dice with 6 sides
+roll_dice_formula(dice_formula = "1d6", seed = 123)
+```
+
+```{r}
+roll_dice_formula(
+  dice_formula = "4d6", # 4 dice with 6 sides
+  success = 15:24,      # success is defined as sum between 15 and 24
+  seed = 123            # random seed to make it reproducible
+)
+```
+
+```{r}
+# roll 4 dice with 6 sides
+roll_dice_formula(
+  dice_formula = "4d6", # 4 dice with 6 sides
+  rounds = 10,          # repeat 10 times
+  success = 15:24,      # success is defined as sum between 15 and 24
+  seed = 123            # random seed to make it reproducible
+)
+```
+
+```{r}
+roll_dice_formula(
+  dice_formula = "4d6e3", # 4 dice with 6 sides, explode on a 3
+  rounds = 5,             # repeat 5 times
+  success = 15:24,        # success is defined as sum between 15 and 24
+  seed = 123              # random seed to make it reproducible
+)
+```
+
+Other examples for dice_formula:
+
+- ```1d6``` = roll one 6-sided dice
+- ```1d8``` = roll one 8-sided dice
+- ```1d12``` = roll one 12-sided dice
+- ```2d6``` = roll two 6-sided dice
+- ```1d6e6``` = roll one 6-sided dice, explode dice on a 6
+- ```3d6kh2``` = roll three 6-sided dice, keep top 2 rolls
+- ```3d6kl2``` = roll three 6-sided dice, keep lowest 2 rolls
+- ```4d6kh3e6``` = roll four 6-sided dice, keep top 3 rolls, but explode on a 6
+- ```1d20+4``` = roll one 20-sided dice, and add 4
+- ```1d4+1d6``` = roll one 4-sided dice and one 6-sided dice, and sum the results
