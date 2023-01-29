@@ -114,7 +114,7 @@ parse_dice_formula <- function(dice_formula) {
 #' - 1d4+1d6  > roll one 4-sided dice and one 6-sided dice, and sum the results
 #'     
 #' @param data Data from a previous experiment
-#' @param dice_formula 
+#' @param dice_formula Dice formula (e.g. "1d6" = 1 dice with 6 sides)
 #' @param times How many times a dice is rolled (or how many dice are rolled at the same time)
 #' @param rounds Number of rounds 
 #' @param success Which result is a success (default = 6)

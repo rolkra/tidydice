@@ -19,7 +19,7 @@ roll_dice_formula(
 \arguments{
 \item{data}{Data from a previous experiment}
 
-\item{dice_formula}{}
+\item{dice_formula}{Dice formula (e.g. "1d6" = 1 dice with 6 sides)}
 
 \item{times}{How many times a dice is rolled (or how many dice are rolled at the same time)}
 
