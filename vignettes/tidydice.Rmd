@@ -287,7 +287,7 @@ flip_coin(times = 10, rounds = 4, agg = TRUE)
 
 #### Visualise result
 
-```{R echo=TRUE}
+```{R echo=TRUE, fig.height=4, fig.width=7}
 set.seed(123)
 flip_coin(times = 10, rounds = 4) %>%
   plot_coin()
@@ -307,7 +307,7 @@ flip_coin(times = 10, agg = TRUE) %>%
 binom_coin(times = 10) 
 ```
 
-```{R echo=TRUE}
+```{R echo=TRUE, fig.height=4, fig.width=7}
 binom_coin(times = 10) %>% 
   plot_binom(title = "Binomial distribution,\n10 coin flips")
 ```

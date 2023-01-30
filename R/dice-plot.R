@@ -230,6 +230,9 @@ plot_dice <- function(data, detailed = FALSE, fill = "white", fill_success = "go
     
   } # for ii
   # plot all dice  
-  p
+  p + ggtitle(paste0(
+    "Success: ", sum(data$success), " of ", nrow(data),
+    " (", round(100 * sum(data$success) / nrow(data), 1), "%)"
+  ))
   
 } # plot_dice

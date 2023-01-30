@@ -114,7 +114,11 @@ plot_coin <- function(data, detailed = FALSE, fill = "white", fill_success = "go
     pos_y <- pos_y - 1
     
   } # for ii
+  
   # plot all dice  
-  p
+  p + ggtitle(paste0(
+    "Success: ", sum(data$success), " of ", nrow(data),
+    " (", round(100 * sum(data$success) / nrow(data), 1), "%)"
+    ))
   
 } # plot_coin
