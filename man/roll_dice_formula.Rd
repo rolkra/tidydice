@@ -39,17 +39,33 @@ roll_dice_formula(
 Result of experiment as a tibble
 }
 \description{
-Example dice_formula:
-\itemize{
-\item 1d6      > roll one 6-sided dice
-\item 1d8      > roll one 8-sided dice
-\item 1d12     > roll one 12-sided dice
-\item 2d6      > roll two 6-sided dice
-\item 1d6e6    > roll one 6-sided dice, explode dice on a 6
-\item 3d6kh2   > roll three 6-sided dice, keep top 2 rolls
-\item 3d6kl2   > roll three 6-sided dice, keep lowest 2 rolls
-\item 4d6kh3e6 > roll four 6-sided dice, keep top 3 rolls, but explode on a 6
-\item 1d20+4   > roll one 20-sided dice, and add 4
-\item 1d4+1d6  > roll one 4-sided dice and one 6-sided dice, and sum the results
+Simulating rolling a dice, using a formula
 }
+\examples{
+# roll one 6-sided dice
+roll_dice_formula(dice_formula = "1d6")
+
+# roll one 8-sided dice
+roll_dice_formula(dice_formula = "1d8")
+
+# roll two 6-sided dice
+roll_dice_formula(dice_formula = "2d6")
+
+# roll two 6-sided dice, explode dice on a 6
+roll_dice_formula(dice_formula = "2d6e6")
+
+# roll three 6-sided dice, keep highest 2 rolls
+roll_dice_formula(dice_formula = "3d6kh2")
+
+# roll three 6-sided dice, keep lowest 2 rolls
+roll_dice_formula(dice_formula = "3d6kl2")
+
+# roll four 6-sided dice, keep highest 3 rolls, but explode on a 6
+roll_dice_formula(dice_formula = "4d6kh3e6")
+
+# roll one 20-sided dice, and add 4
+roll_dice_formula(dice_formula = "1d20+4")
+
+# roll one 4-sided dice and one 6-sided dice, and sum the results
+roll_dice_formula(dice_formula = "1d4+1d6")
 }

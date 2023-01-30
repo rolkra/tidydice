@@ -440,8 +440,8 @@ Other examples for dice_formula:
 - ```1d12``` = roll one 12-sided dice
 - ```2d6``` = roll two 6-sided dice
 - ```1d6e6``` = roll one 6-sided dice, explode dice on a 6
-- ```3d6kh2``` = roll three 6-sided dice, keep top 2 rolls
+- ```3d6kh2``` = roll three 6-sided dice, keep highest 2 rolls
 - ```3d6kl2``` = roll three 6-sided dice, keep lowest 2 rolls
-- ```4d6kh3e6``` = roll four 6-sided dice, keep top 3 rolls, but explode on a 6
+- ```4d6kh3e6``` = roll four 6-sided dice, keep highest 3 rolls, but explode on a 6
 - ```1d20+4``` = roll one 20-sided dice, and add 4
 - ```1d4+1d6``` = roll one 4-sided dice and one 6-sided dice, and sum the results

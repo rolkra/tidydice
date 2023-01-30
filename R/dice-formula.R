@@ -104,18 +104,6 @@ parse_dice_formula <- function(dice_formula) {
 
 #' Simulating rolling a dice, using a formula
 #' 
-#' Example dice_formula:
-#' - 1d6      > roll one 6-sided dice
-#' - 1d8      > roll one 8-sided dice
-#' - 1d12     > roll one 12-sided dice
-#' - 2d6      > roll two 6-sided dice
-#' - 1d6e6    > roll one 6-sided dice, explode dice on a 6
-#' - 3d6kh2   > roll three 6-sided dice, keep top 2 rolls
-#' - 3d6kl2   > roll three 6-sided dice, keep lowest 2 rolls
-#' - 4d6kh3e6 > roll four 6-sided dice, keep top 3 rolls, but explode on a 6
-#' - 1d20+4   > roll one 20-sided dice, and add 4
-#' - 1d4+1d6  > roll one 4-sided dice and one 6-sided dice, and sum the results
-#'     
 #' @param data Data from a previous experiment
 #' @param dice_formula Dice formula (e.g. "1d6" = 1 dice with 6 sides)
 #' @param times How many times a dice is rolled (or how many dice are rolled at the same time)
@@ -129,7 +117,34 @@ parse_dice_formula <- function(dice_formula) {
 #' @import stringr
 #' @importFrom stats rgeom
 #' @export
-  
+#' @examples
+#' # roll one 6-sided dice
+#' roll_dice_formula(dice_formula = "1d6")
+#' 
+#' # roll one 8-sided dice
+#' roll_dice_formula(dice_formula = "1d8")
+#' 
+#' # roll two 6-sided dice
+#' roll_dice_formula(dice_formula = "2d6")
+#' 
+#' # roll two 6-sided dice, explode dice on a 6
+#' roll_dice_formula(dice_formula = "2d6e6")
+#' 
+#' # roll three 6-sided dice, keep highest 2 rolls
+#' roll_dice_formula(dice_formula = "3d6kh2")
+#' 
+#' # roll three 6-sided dice, keep lowest 2 rolls
+#' roll_dice_formula(dice_formula = "3d6kl2")
+#' 
+#' # roll four 6-sided dice, keep highest 3 rolls, but explode on a 6
+#' roll_dice_formula(dice_formula = "4d6kh3e6")
+#' 
+#' # roll one 20-sided dice, and add 4
+#' roll_dice_formula(dice_formula = "1d20+4")
+#' 
+#' # roll one 4-sided dice and one 6-sided dice, and sum the results
+#' roll_dice_formula(dice_formula = "1d4+1d6")
+
 roll_dice_formula <- function(data=NULL,
                               dice_formula = "1d6", 
                               times = 1, 
