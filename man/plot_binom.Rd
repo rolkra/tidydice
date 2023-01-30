@@ -8,7 +8,7 @@ plot_binom(
   data,
   title = "Binomial distribution",
   color = "darkgrey",
-  color_highlight = "red",
+  color_highlight = "coral",
   label = NULL,
   label_size = 3,
   min_pct = 0.05,

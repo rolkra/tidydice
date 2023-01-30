@@ -113,7 +113,7 @@ binom <- function(times, prob_success) {
 #' plot_binom(data = binom_dice(times = 10))
 #' @export
 
-plot_binom <- function(data , title = "Binomial distribution", color = "darkgrey", color_highlight = "red", label = NULL, label_size = 3, min_pct = 0.05, highlight = NULL)  {
+plot_binom <- function(data , title = "Binomial distribution", color = "darkgrey", color_highlight = "coral", label = NULL, label_size = 3, min_pct = 0.05, highlight = NULL)  {
   
   assertthat::assert_that("success" %in% names(data), msg = "success not found in data")
   assertthat::assert_that("pct" %in% names(data), msg = "pct not found in data")

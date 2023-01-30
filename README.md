@@ -37,11 +37,34 @@ if (!require(devtools)) install.packages("devtools")
 devtools::install_local(path = <path of local package>, force = TRUE)
 ```
 
-## Example
+## Basic example
+
+Let's roll 60 dice:
 
 ```r
 # load packages
-library(tidyverse)
+library(tidydice)
+
+# roll 60 dice (6 x 10 dice = 60)
+roll_dice(times = 10, rounds = 6) |> 
+  plot(dice, fill_success = "gold")
+```
+
+<img src="man/figures/tidydice-roll-dice-60.png" alt="Roll 60 dice" width="600">
+
+We got 12 six. Is this unlikely? Would 15 or more six be unusual? Let's check using the binomial ditribution:
+
+```r
+# binomial distribution
+binom_dice(times = 60) |> 
+  plot_binom(highlight = c(16:60), color_highlight = "coral")
+```
+<img src="man/figures/tidydice-binom-dice-60.png" alt="Binomial distribution" width="600"/>
+
+## Roll dice
+
+```r
+# load packages
 library(tidydice)
 
 # roll a dice
@@ -51,11 +74,11 @@ roll_dice()
 roll_dice(times = 6)
 
 # roll a dice 6x and plot result
-roll_dice(times = 6) %>% 
+roll_dice(times = 6) |> 
   plot_dice()
 
 # repeat 6x
-roll_dice(times = 6, rounds = 6) %>% 
+roll_dice(times = 6, rounds = 6)  |>  
   plot_dice()
 
 # count success per round
@@ -65,10 +88,70 @@ roll_dice(times = 6, rounds = 6, agg = TRUE)
 binom_dice(times = 6)
   
 # Binomial distribution + plot
-binom_dice(times = 6) %>% 
+binom_dice(times = 6) |>  
   plot_binom()
 
 # Binomial distribution + plot 
-binom_dice(times = 6) %>% 
+binom_dice(times = 6) |>  
+  plot_binom(highlight = 0:2)
+```
+
+## Roll dice (advanced)
+
+To do more complex dice rolls use ```roll_dice_formula()```:
+
+```r
+library(tidydice)
+
+roll_dice_formula(
+  dice_formula = "4d6e3", # 4 dice with 6 sides, explode on a 3
+  rounds = 5,             # repeat 5 times
+  success = 15:24,        # success is defined as sum between 15 and 24
+  seed = 123              # random seed to make it reproducible
+)
+```
+
+- ```1d6``` = roll one 6-sided dice
+- ```1d8``` = roll one 8-sided dice
+- ```1d12``` = roll one 12-sided dice
+- ```2d6``` = roll two 6-sided dice
+- ```1d6e6``` = roll one 6-sided dice, explode dice on a 6
+- ```3d6kh2``` = roll three 6-sided dice, keep top 2 rolls
+- ```3d6kl2``` = roll three 6-sided dice, keep lowest 2 rolls
+- ```4d6kh3e6``` = roll four 6-sided dice, keep top 3 rolls, but explode on a 6
+- ```1d20+4``` = roll one 20-sided dice, and add 4
+- ```1d4+1d6``` = roll one 4-sided dice and one 6-sided dice, and sum the results
+
+## Flip coin
+
+```r
+# load packages
+library(tidydice)
+
+# flip a coin
+flip_coin()
+
+# flip a coin 10x
+flip_coin(times = 10)
+
+# flip a coin 10x and plot result
+flip_coin(times = 10) |> 
+  plot_dice()
+
+# repeat 10x
+flip_coin(times = 10, rounds = 10)
+
+# count success per round
+flip_coin(times = 10, rounds = 10, agg = TRUE)
+
+# Binomial distribution
+binom_coin(times = 10)
+  
+# Binomial distribution + plot
+binom_coin(times = 10) |>  
+  plot_binom()
+
+# Binomial distribution + plot 
+binom_coin(times = 10) |>  
   plot_binom(highlight = 0:2)
 ```

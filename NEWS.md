@@ -1,7 +1,10 @@
-## tidydice 1.0.0 (2022-01-29)
+## tidydice 1.0.0 (2022-01-30)
 
 * add roll_dice_formula()
 * fix help plot_binom()
+* change default color in plot_binom() to "coral"
+* Update Vignette
+* Update README
 
 ## tidydice 0.0.6 (2020-01-07)
 
