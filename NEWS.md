@@ -5,6 +5,7 @@
 * change default color in plot_binom() to "coral"
 * Update Vignette
 * Update README
+* Default color for success in plot_dice() & plot_coin() is "gold"
 
 ## tidydice 0.0.6 (2020-01-07)
 

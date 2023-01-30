@@ -8,7 +8,7 @@ plot_dice(
   data,
   detailed = FALSE,
   fill = "white",
-  fill_success = fill,
+  fill_success = "gold",
   point_color = "black",
   line_color = "black",
   line_size = 0.8

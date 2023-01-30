@@ -170,7 +170,7 @@ plot_single_dice <- function(ggplot = NULL, result = 6, x = 0, y = 0, width = 0.
 #' roll_dice(times = 3, rounds = 3) %>% plot_dice(fill_success = "red")
 #' @export
 
-plot_dice <- function(data, detailed = FALSE, fill = "white", fill_success = fill, point_color = "black", line_color = "black", line_size = 0.8)  {
+plot_dice <- function(data, detailed = FALSE, fill = "white", fill_success = "gold", point_color = "black", line_color = "black", line_size = 0.8)  {
   
   # check data
   if (missing(data))  {

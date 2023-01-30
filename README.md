@@ -136,10 +136,11 @@ flip_coin(times = 10)
 
 # flip a coin 10x and plot result
 flip_coin(times = 10) |> 
-  plot_dice()
+  plot_coin()
 
-# repeat 10x
-flip_coin(times = 10, rounds = 10)
+# repeat 10x and plot result
+flip_coin(times = 10, rounds = 10) |> 
+  plot_coin()
 
 # count success per round
 flip_coin(times = 10, rounds = 10, agg = TRUE)

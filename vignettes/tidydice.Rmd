@@ -285,6 +285,14 @@ set.seed(123)
 flip_coin(times = 10, rounds = 4, agg = TRUE)
 ```
 
+#### Visualise result
+
+```{R echo=TRUE}
+set.seed(123)
+flip_coin(times = 10, rounds = 4) %>%
+  plot_coin()
+```
+
 #### Combine experiments
 
 ```{R echo=TRUE}
