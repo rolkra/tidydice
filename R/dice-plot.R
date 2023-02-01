@@ -111,26 +111,38 @@ plot_single_dice <- function(ggplot = NULL, result = 6, x = 0, y = 0, width = 0.
   # plot new dice    
   if (!missing(ggplot))  {
     # plot dice  
-    p <- ggplot +
-      geom_polygon(data = dice_cube, aes(x, y), 
-                   color = line_color, size = line_size*0.9, fill = fill) +
-      geom_path(data = dice_cube, aes(x, y), 
-                 color = line_color, size = line_size, lineend = line_end)
+    
+    if (detailed) {
+      p <- ggplot +
+             geom_polygon(data = dice_cube, aes(x, y), 
+                          color = line_color, size = line_size*0.9, fill = fill)
+    } else {
+      p <- ggplot +
+             geom_tile(data = data.frame(x=x, y=y), aes(x,y), 
+                       width = dice_width * 1.9, height = dice_width * 1.9,
+                       color = line_color, size = line_size * 0.9, fill = fill)
+    }
   } else  {
       # add plot dice  
-    p <- ggplot() +
-      geom_polygon(data = dice_cube, aes(x, y), 
-                   color = line_color, size = line_size*0.9, fill = fill) +
-      geom_path(data = dice_cube, aes(x, y), 
-                   color = line_color, size = line_size, lineend = line_end)
-  } #if  
-    
+    if (detailed) {
+      p <- ggplot() +
+        geom_polygon(data = dice_cube, aes(x, y), 
+                     color = line_color, size = line_size*0.9, fill = fill)
+    } else {
+      p <- ggplot() +
+        geom_tile(data = data.frame(x=x, y=y), aes(x,y), 
+                  width = dice_width * 1.9, height = dice_width * 1.9,
+                  color = line_color, size = line_size * 0.9, fill = fill)
+    } #if  
+  } #missing ggplot
+  
   # plot dots
   for (i in 1:nrow(points))  {
     x <- points$x[i]
     y <- points$y[i]
     if (detailed)  {
         dice_dot <- circle_points(center = c(x, y), diameter = point_size)
+        p <- p + geom_polygon(data = dice_dot, aes(x, y), color = point_color, fill = point_color)
     } else {
         #dice_dot <- data.frame(x = c(x-point_size/2*0.9, x+point_size/2*0.9, x+point_size/2*0.9, x-point_size/2*0.9, x-point_size/2*0.9),
         #                       y = c(y+point_size/2*0.9, y+point_size/2*0.9, y-point_size/2*0.9, y-point_size/2*0.9, y+point_size/2*0.9))
