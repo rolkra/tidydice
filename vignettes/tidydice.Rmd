@@ -43,7 +43,7 @@ library(explore)
 ```{r fig.height=3, fig.width=6}
 set.seed(123)
 roll_dice(times = 6, rounds = 3) %>% 
-  plot_dice(fill_success = "lightgrey")
+  plot_dice()
 ```
 
 #### Roll a dice once
