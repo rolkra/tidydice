@@ -132,10 +132,13 @@ plot_single_dice <- function(ggplot = NULL, result = 6, x = 0, y = 0, width = 0.
     if (detailed)  {
         dice_dot <- circle_points(center = c(x, y), diameter = point_size)
     } else {
-        dice_dot <- data.frame(x = c(x-point_size/2*0.9, x+point_size/2*0.9, x+point_size/2*0.9, x-point_size/2*0.9, x-point_size/2*0.9),
-                               y = c(y+point_size/2*0.9, y+point_size/2*0.9, y-point_size/2*0.9, y-point_size/2*0.9, y+point_size/2*0.9))
+        #dice_dot <- data.frame(x = c(x-point_size/2*0.9, x+point_size/2*0.9, x+point_size/2*0.9, x-point_size/2*0.9, x-point_size/2*0.9),
+        #                       y = c(y+point_size/2*0.9, y+point_size/2*0.9, y-point_size/2*0.9, y-point_size/2*0.9, y+point_size/2*0.9))
+        dice_dot <- data.frame(x = x, y = y)
+        p <- p + geom_tile(data = dice_dot, aes(x, y), width = point_size, height = point_size)
     } #if detailed
-    p <- p + geom_polygon(data = dice_dot, aes(x, y), color = point_color, fill = point_color)
+    #p <- p + geom_polygon(data = dice_dot, aes(x, y), color = point_color, fill = point_color)
+    #p <- p + geom_path(data = dice_dot, aes(x, y), color = point_color, lineend = line_end)
   } #for
     
   # fix coordinates

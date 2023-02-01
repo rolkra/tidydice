@@ -46,8 +46,33 @@ Let's roll 60 dice:
 library(tidydice)
 
 # roll 60 dice (10 x 6 dice = 60)
-roll_dice(times = 10, rounds = 6) |> 
-  plot(dice)
+data <- roll_dice(times = 10, rounds = 6)
+data
+```
+
+We get tidy data, where each row is a dice. It is a success, if the result is a 6.
+
+```
+# A tibble: 60 × 5
+   experiment round    nr result success
+        <int> <int> <int>  <int> <lgl>  
+ 1          1     1     1      5 FALSE  
+ 2          1     1     2      6 TRUE   
+ 3          1     1     3      6 TRUE   
+ 4          1     1     4      1 FALSE  
+ 5          1     1     5      5 FALSE  
+ 6          1     1     6      1 FALSE  
+ 7          1     1     7      4 FALSE  
+ 8          1     1     8      5 FALSE  
+ 9          1     1     9      1 FALSE  
+10          1     1    10      2 FALSE  
+# … with 50 more rows
+```
+
+Now let's plot it:
+
+```r
+data |> plot_dice()
 ```
 
 <img src="man/figures/tidydice-roll-dice-60.png" alt="Roll 60 dice" width="600">
