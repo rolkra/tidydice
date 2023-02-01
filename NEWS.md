@@ -1,4 +1,4 @@
-## tidydice 1.0.0 (2022-01-30)
+## tidydice 1.0.0 (2022-02-01)
 
 * add roll_dice_formula()
 * fix help plot_binom()

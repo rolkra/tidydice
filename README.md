@@ -45,21 +45,23 @@ Let's roll 60 dice:
 # load packages
 library(tidydice)
 
-# roll 60 dice (6 x 10 dice = 60)
+# roll 60 dice (10 x 6 dice = 60)
 roll_dice(times = 10, rounds = 6) |> 
-  plot(dice, fill_success = "gold")
+  plot(dice)
 ```
 
 <img src="man/figures/tidydice-roll-dice-60.png" alt="Roll 60 dice" width="600">
 
-We got 12 six. Is this unlikely? Would 15 or more six be unusual? Let's check using the binomial ditribution:
+We got 13 six. Is this unlikely? The expected value is 10 (60 dice / 6 sides = 10).  So 13 is more than expected, is it a sign of cheating? Let's check using the binomial ditribution:
 
 ```r
 # binomial distribution
 binom_dice(times = 60) |> 
-  plot_binom(highlight = c(16:60), color_highlight = "coral")
+  plot_binom(highlight = c(13:60))
 ```
 <img src="man/figures/tidydice-binom-dice-60.png" alt="Binomial distribution" width="600"/>
+
+The binomial distribution shows, that there is a 19% chance that you can get 13 or more six using a fair dice.
 
 ## Roll dice
 
