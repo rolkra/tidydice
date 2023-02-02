@@ -12,7 +12,7 @@ plot_single_dice(
   width = 0.9,
   fill = "white",
   detailed = FALSE,
-  rounding = dice_width/5,
+  rounding = width/5,
   line_size = 0.8,
   line_color = "black",
   point_size = width/6,

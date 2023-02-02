@@ -51,9 +51,17 @@ plot_single_coin <- function(ggplot = NULL, result = 1, x = 0, y = 0, width = 0.
 #' @import ggplot2
 #' @examples
 #' library(magrittr)  
+#' 
+#' # plot one coin
 #' plot_coin()
-#' flip_coin(times = 3, rounds = 3) %>% plot_coin())
-#' flip_coin(times = 3, rounds = 3) %>% plot_coin(fill_success = "red")
+#' 
+#' # plot multiple coin flips
+#' flip_coin(times = 3, rounds = 3) %>% 
+#'   plot_coin()
+#'   
+#' # change coin design    
+#' flip_coin(times = 3, rounds = 3) %>% 
+#'   plot_coin(fill_success = "red")
 #' @export
 
 plot_coin <- function(data, detailed = FALSE, fill = "white", fill_success = "gold", line_color = "black", line_size = 0.8)  {

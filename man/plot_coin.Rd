@@ -34,7 +34,15 @@ Plot result of flip_coin()
 }
 \examples{
 library(magrittr)  
+
+# plot one coin
 plot_coin()
-flip_coin(times = 3, rounds = 3) \%>\% plot_coin())
-flip_coin(times = 3, rounds = 3) \%>\% plot_coin(fill_success = "red")
+
+# plot multiple coin flips
+flip_coin(times = 3, rounds = 3) \%>\% 
+  plot_coin()
+  
+# change coin design    
+flip_coin(times = 3, rounds = 3) \%>\% 
+  plot_coin(fill_success = "red")
 }
