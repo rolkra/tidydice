@@ -188,6 +188,13 @@ binom_dice(times = 100) %>%
   plot_binom(title = "Binomial distribution, rolling 100 dice")
 ```
 
+For an unfair dice use ```prob```. Here the 6 is twice as likely as any other side:
+
+```{R echo=TRUE, fig.height=4, fig.width=7}
+binom_dice(times = 100, prob = c(1, 1, 1, 1, 1, 2)) %>% 
+  plot_binom(title = "Binomial distribution, rolling 100 unfair dice")
+```
+
 ```{R echo=TRUE}
 set.seed(123)
 roll_dice(times = 100, rounds = 10000, agg = TRUE) %>% 
@@ -434,6 +441,61 @@ roll_dice_formula(
 )
 ```
 
+Modifiers follow the syntax of [Avrae](https://github.com/avrae/d20). For example, the 
+ability scores of D&D are rolled by rolling 4 dice and dropping the lowest:
+
+```{r}
+roll_dice_formula(
+  dice_formula = "4d6pl1", # 4 dice with 6 sides, drop the lowest
+  rounds = 5,
+  seed = 123
+)
+```
+
+Experiments can be combined with the pipe-operator. Here we compare rolling 
+with advantage (```kh1```: keep the highest) and disadvantage (```kl1```: keep the lowest):
+
+```{r}
+roll_dice_formula("2d20kh1", rounds = 1000, label = "advantage") %>%
+  roll_dice_formula("2d20kl1", rounds = 1000, label = "disadvantage") %>%
+  dplyr::group_by(label) %>%
+  dplyr::summarise(mean = mean(result), min = min(result), max = max(result))
+```
+
+With ```detail = TRUE``` the dice that were rolled are kept, and ```plot_dice()``` 
+draws every die. Dropped dice are grey, and successful rolls are gold:
+
+```{r fig.height=3, fig.width=6}
+roll_dice_formula(
+  dice_formula = "4d6pl1",
+  times = 3, rounds = 3,
+  success = 15:18,
+  detail = TRUE,
+  seed = 123) %>%
+  plot_dice()
+```
+
+Unfair dice use ```prob```, like in ```roll_dice()```. If a formula has dice with 
+different sides, use a list with the probabilities of each group of dice 
+(```NULL``` is a fair dice):
+
+```{r}
+roll_dice_formula(
+  dice_formula = "3d6",
+  prob = c(1, 1, 1, 1, 1, 5), # the 6 is 5 times more likely
+  times = 1000,
+  seed = 123
+) %>%
+  dplyr::count(result)  %>%
+  dplyr::slice_max(n, n = 3)
+
+roll_dice_formula(
+  dice_formula = "1d6+1d4",
+  prob = list(c(1, 1, 1, 1, 1, 5), NULL), # unfair d6 + fair d4
+  seed = 123
+)
+```
+
 ```{r fig.height=3, fig.width=6}
 roll_dice_formula(
   dice_formula = "4d6+1d10", # 4 dice with 6 sides + 1 dice with 10 sides
@@ -448,8 +510,18 @@ Other examples for dice_formula:
 - ```1d12``` = roll one 12-sided dice
 - ```2d6``` = roll two 6-sided dice
 - ```1d6e6``` = roll one 6-sided dice, explode dice on a 6
+- ```2d6e>4``` = roll two 6-sided dice, explode dice on a 5 or 6 (```>``` and ```<``` are strict, like in Avrae)
 - ```3d6kh2``` = roll three 6-sided dice, keep highest 2 rolls
 - ```3d6kl2``` = roll three 6-sided dice, keep lowest 2 rolls
 - ```4d6kh3e6``` = roll four 6-sided dice, keep highest 3 rolls, but explode on a 6
+- ```4d6pl1``` = roll four 6-sided dice, drop the lowest
+- ```3d6rr1``` = roll three 6-sided dice, reroll 1s until they are gone (```ro1``` = reroll once)
+- ```4d6mi2``` = roll four 6-sided dice, a dice below 2 counts as 2 (```ma``` = maximum)
 - ```1d20+4``` = roll one 20-sided dice, and add 4
 - ```1d4+1d6``` = roll one 4-sided dice and one 6-sided dice, and sum the results
+- ```(1d8+2)*2``` = parentheses and the usual operator precedence work
+
+Modifiers (```k```, ```p```, ```rr```, ```ro```, ```ra```, ```e```, ```mi```, ```ma```)
+are applied in the order they are written, and need a selector: 
+a number, ```<n```, ```>n```, ```hn``` (highest n) or ```ln``` (lowest n).
+See ```?roll_dice_formula``` for the details. Invalid or unsupported syntax gives an error.

@@ -13,13 +13,14 @@ plot_single_coin(
   fill = "white",
   detailed = FALSE,
   line_size = 0.8,
-  line_color = "black"
+  line_color = "black",
+  show_result = FALSE
 )
 }
 \arguments{
 \item{ggplot}{ggplot-Object. If passed, the dice will be added to plot}
 
-\item{result}{Result of flip coin (0/1)}
+\item{result}{Result of flip coin}
 
 \item{x}{X-coordinate of dice (center)}
 
@@ -34,6 +35,8 @@ plot_single_coin(
 \item{line_size}{Size of Lines}
 
 \item{line_color}{Color of Lines}
+
+\item{show_result}{If TRUE, the result is written on the coin}
 }
 \value{
 ggplot-Object

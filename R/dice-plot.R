@@ -89,8 +89,9 @@ plot_single_dice <- function(ggplot = NULL, result = 6, x = 0, y = 0, width = 0.
                       c(1,0,1,0,1,0,1,0,1),   # result 5
                       c(1,1,1,0,0,0,1,1,1))   # result 6
   
-  # plot result 1..6 or empty dice
-  if (result >= 1 & result <= 6) {
+  # plot result 1..6 as dots, any other result (e.g. a sum, or a decimal) as number
+  is_face <- is.finite(result) && result == round(result) && result >= 1 && result <= 6
+  if (is_face) {
     
     points <- data.frame(x = points_x[points_dots[[result]] == 1],
                          y = points_y[points_dots[[result]] == 1])
@@ -108,29 +109,29 @@ plot_single_dice <- function(ggplot = NULL, result = 6, x = 0, y = 0, width = 0.
     if (detailed) {
       p <- ggplot +
              geom_polygon(data = dice_cube_round, aes(x, y), 
-                          color = line_color, size = line_size*0.9, fill = fill)
+                          color = line_color, linewidth = line_size*0.9, fill = fill)
     } else {
       p <- ggplot +
              geom_tile(data = data.frame(x=x, y=y), aes(x,y), 
                        width = dice_width * 1.9, height = dice_width * 1.9,
-                       color = line_color, size = line_size * 0.9, fill = fill)
+                       color = line_color, linewidth = line_size * 0.9, fill = fill)
     }
   } else  {
       # add plot dice  
     if (detailed) {
       p <- ggplot() +
         geom_polygon(data = dice_cube_round, aes(x, y), 
-                     color = line_color, size = line_size*0.9, fill = fill)
+                     color = line_color, linewidth = line_size*0.9, fill = fill)
     } else {
       p <- ggplot() +
         geom_tile(data = data.frame(x=x, y=y), aes(x,y), 
                   width = dice_width * 1.9, height = dice_width * 1.9,
-                  color = line_color, size = line_size * 0.9, fill = fill)
+                  color = line_color, linewidth = line_size * 0.9, fill = fill)
     } #if  
   } #missing ggplot
   
   # plot dots
-  for (i in 1:nrow(points))  {
+  for (i in seq_len(nrow(points)))  {
     x <- points$x[i]
     y <- points$y[i]
     if (detailed)  {
@@ -146,6 +147,14 @@ plot_single_dice <- function(ggplot = NULL, result = 6, x = 0, y = 0, width = 0.
     #p <- p + geom_path(data = dice_dot, aes(x, y), color = point_color, lineend = line_end)
   } #for
     
+  # results that are not a dice face: write the number on the dice
+  if (!is_face) {
+    label <- NULL # to pass CRAN checks
+    p <- p + geom_text(data = data.frame(x = x, y = y, label = format(round(result, 2))),
+                       aes(x, y, label = label), color = point_color, 
+                       size = if (detailed) 4 else 3.5)
+  }
+  
   # fix coordinates
   if (missing(ggplot))  { 
     p <- p +
@@ -160,10 +169,15 @@ plot_single_dice <- function(ggplot = NULL, result = 6, x = 0, y = 0, width = 0.
 
 #' Plot result of roll_dice()
 #'
-#' @param data result of roll_dice()
+#' @param data result of roll_dice() or roll_dice_formula()
 #' @param detailed If TRUE, the dice is plotted with more details
 #' @param fill Fill color
 #' @param fill_success Fill color if result is a success
+#' @param fill_dropped Fill color of dice that were dropped (e.g. the lowest of `4d6pl1`)
+#' @param by_die If TRUE, every die that was rolled is plotted, and the dice of a roll 
+#'   are grouped together. Needs data from roll_dice_formula(detail = TRUE), 
+#'   and is the default for it. If FALSE, a roll is plotted as one dice, 
+#'   showing the result as dots (1 to 6) or as a number.
 #' @param point_color Color of Points
 #' @param line_color Color of Lines
 #' @param line_size Size of Lines
@@ -176,9 +190,13 @@ plot_single_dice <- function(ggplot = NULL, result = 6, x = 0, y = 0, width = 0.
 #' plot_dice()
 #' roll_dice(times = 3, rounds = 3) %>% plot_dice()
 #' roll_dice(times = 3, rounds = 3) %>% plot_dice(fill_success = "red")
+#' 
+#' # plot every die of a formula
+#' roll_dice_formula("4d6pl1", times = 3, rounds = 3, success = 15:18, detail = TRUE) %>% 
+#'   plot_dice()
 #' @export
 
-plot_dice <- function(data, detailed = FALSE, fill = "white", fill_success = "gold", point_color = "black", line_color = "black", line_size = 0.8)  {
+plot_dice <- function(data, detailed = FALSE, fill = "white", fill_success = "gold", point_color = "black", line_color = "black", line_size = 0.8, fill_dropped = "grey85", by_die = NULL)  {
   
   # check data
   if (missing(data))  {
@@ -207,7 +225,21 @@ plot_dice <- function(data, detailed = FALSE, fill = "white", fill_success = "go
     stop("can't plot more than 10 rounds")
   }
   
-  if (length(nr) > 10)  {
+  # plot every die of a roll?
+  if (is.null(by_die)) {
+    by_die <- "dice" %in% names(data)
+  }
+  if (by_die && !"dice" %in% names(data)) {
+    stop("by_die needs the dice that were rolled, use roll_dice_formula(detail = TRUE)")
+  }
+  
+  if (by_die) {
+    dice_per_round <- tapply(
+      vapply(data$dice, nrow, integer(1)) , data$round, sum)
+    if (any(dice_per_round > 20)) {
+      stop("can't plot more than 20 dice per round")
+    }
+  } else if (length(nr) > 10)  {
     stop("can't plot more than 10 rolls per round")
   }
   
@@ -220,6 +252,28 @@ plot_dice <- function(data, detailed = FALSE, fill = "white", fill_success = "go
     tmp <- data[data$round == rounds[[ii]], ] 
     
     for (i in seq_along(tmp$result))  {
+      
+      if (by_die) {
+        
+        # every die of the roll, dropped dice in another color
+        roll_dice <- tmp$dice[[i]]
+        for (j in seq_len(nrow(roll_dice))) {
+          p <- p %>% plot_single_dice(
+            result = roll_dice$value[[j]], 
+            x = pos_x, 
+            y = pos_y,
+            detailed = detailed,
+            fill = if (!roll_dice$kept[[j]]) fill_dropped else 
+              ifelse(tmp$success[[i]], fill_success, fill),
+            point_color = point_color,
+            line_color = line_color)
+          pos_x <- pos_x + 1
+        } # for j
+        
+        # space between the rolls
+        pos_x <- pos_x + 0.5
+        next
+      }
       
       p <- p  %>% plot_single_dice(result = tmp$result[[i]], 
                                    x = pos_x, 

@@ -4,7 +4,7 @@
 \alias{binom_coin}
 \title{Binomial distribution of flipping a coin.}
 \usage{
-binom_coin(times, sides = 2, success = 2)
+binom_coin(times, sides = 2, success = 2, prob = NULL)
 }
 \arguments{
 \item{times}{how many times a coin is flipped (or how many coins are flipped at the same time)}
@@ -12,6 +12,9 @@ binom_coin(times, sides = 2, success = 2)
 \item{sides}{number of sides of the coin (default = 2)}
 
 \item{success}{which result is a success (default = 2)}
+
+\item{prob}{vector of probabilities for each side of the coin (unfair coin),
+like in flip_coin(). Default is a fair coin.}
 }
 \value{
 binomial distribution as a tibble
@@ -22,4 +25,7 @@ using dbinom().
 }
 \examples{
 binom_coin(times = 10)
+
+# unfair coin: 70\% chance of a 2
+binom_coin(times = 10, prob = c(0.3, 0.7))
 }

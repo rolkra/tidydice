@@ -92,7 +92,7 @@ roll_dice <- function(data = NULL, times = 1, rounds = 1, success = c(6), agg = 
     
   } # if agg
   
-  if (missing(data))  {
+  if (!is.data.frame(data))  {
     
     # result of roll_dice (first experiment)
     result <- result %>% 

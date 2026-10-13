@@ -10,7 +10,8 @@ plot_coin(
   fill = "white",
   fill_success = "gold",
   line_color = "black",
-  line_size = 0.8
+  line_size = 0.8,
+  show_result = TRUE
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ plot_coin(
 \item{line_color}{Color of Lines}
 
 \item{line_size}{Size of Lines}
+
+\item{show_result}{If TRUE (default), the result is written on each coin}
 }
 \value{
 ggplot-Object

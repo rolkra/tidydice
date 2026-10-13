@@ -143,11 +143,26 @@ roll_dice_formula(
 - ```1d12``` = roll one 12-sided dice
 - ```2d6``` = roll two 6-sided dice
 - ```1d6e6``` = roll one 6-sided dice, explode dice on a 6
+- ```2d6e>4``` = roll two 6-sided dice, explode dice on a 5 or 6 (```>``` and ```<``` are strict, like in Avrae)
 - ```3d6kh2``` = roll three 6-sided dice, keep highest 2 rolls
 - ```3d6kl2``` = roll three 6-sided dice, keep lowest 2 rolls
 - ```4d6kh3e6``` = roll four 6-sided dice, keep highest 3 rolls, but explode on a 6
+- ```4d6pl1``` = roll four 6-sided dice, drop the lowest
+- ```3d6rr1``` = roll three 6-sided dice, reroll 1s until they are gone (```ro1``` = reroll once)
+- ```4d6mi2``` = roll four 6-sided dice, a dice below 2 counts as 2 (```ma``` = maximum)
 - ```1d20+4``` = roll one 20-sided dice, and add 4
 - ```1d4+1d6``` = roll one 4-sided dice and one 6-sided dice, and sum the results
+- ```(1d8+2)*2``` = parentheses and the usual operator precedence work
+
+The syntax follows [Avrae's d20](https://github.com/avrae/d20) (modifiers ```k```, ```p```, ```rr```, ```ro```, ```ra```, ```e```, ```mi```, ```ma```). See ```?roll_dice_formula``` for all selectors.
+
+Use ```detail = TRUE``` to keep the dice that were rolled, then ```plot_dice()``` draws every die (dropped dice are grey). Unfair dice use ```prob``` (a list of probabilities for formulas with different dice):
+
+```r
+roll_dice_formula("4d6pl1", times = 3, rounds = 3, success = 15:18, detail = TRUE) %>%
+  plot_dice()
+roll_dice_formula("1d6+1d4", prob = list(c(1, 1, 1, 1, 1, 5), NULL))
+```
 
 ## Flip coin
 

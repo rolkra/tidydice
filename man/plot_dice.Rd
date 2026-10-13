@@ -11,11 +11,13 @@ plot_dice(
   fill_success = "gold",
   point_color = "black",
   line_color = "black",
-  line_size = 0.8
+  line_size = 0.8,
+  fill_dropped = "grey85",
+  by_die = NULL
 )
 }
 \arguments{
-\item{data}{result of roll_dice()}
+\item{data}{result of roll_dice() or roll_dice_formula()}
 
 \item{detailed}{If TRUE, the dice is plotted with more details}
 
@@ -28,6 +30,13 @@ plot_dice(
 \item{line_color}{Color of Lines}
 
 \item{line_size}{Size of Lines}
+
+\item{fill_dropped}{Fill color of dice that were dropped (e.g. the lowest of \verb{4d6pl1})}
+
+\item{by_die}{If TRUE, every die that was rolled is plotted, and the dice of a roll
+are grouped together. Needs data from roll_dice_formula(detail = TRUE),
+and is the default for it. If FALSE, a roll is plotted as one dice,
+showing the result as dots (1 to 6) or as a number.}
 }
 \value{
 ggplot-Object
@@ -40,4 +49,8 @@ library(magrittr)
 plot_dice()
 roll_dice(times = 3, rounds = 3) \%>\% plot_dice()
 roll_dice(times = 3, rounds = 3) \%>\% plot_dice(fill_success = "red")
+
+# plot every die of a formula
+roll_dice_formula("4d6pl1", times = 3, rounds = 3, success = 15:18, detail = TRUE) \%>\% 
+  plot_dice()
 }

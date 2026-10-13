@@ -13,13 +13,15 @@ roll_dice_formula(
   prob = NULL,
   success = c(6),
   agg = FALSE,
-  label = NULL
+  label = NULL,
+  detail = FALSE
 )
 }
 \arguments{
 \item{data}{Data from a previous experiment}
 
-\item{dice_formula}{Dice formula (e.g. "1d6" = 1 dice with 6 sides)}
+\item{dice_formula}{Dice formula (e.g. "1d6" = 1 dice with 6 sides).
+The syntax follows Avrae's dice bot (see Details).}
 
 \item{times}{How many times a dice is rolled (or how many dice are rolled at the same time)}
 
@@ -27,19 +29,67 @@ roll_dice_formula(
 
 \item{seed}{Seed to produce reproducible results}
 
-\item{prob}{Vector of probabilities for each side of the dice}
+\item{prob}{Vector of probabilities for each side of the dice (unfair dice).
+A vector is used for all the dice of the formula, so all of them need the
+same number of sides. To mix dice, use a list with one vector
+for each group of dice, from left to right (\code{NULL} = fair dice),
+e.g. \code{prob = list(c(.5, .1, .1, .1, .1, .1), NULL)} for \code{"1d6+1d4"}.}
 
 \item{success}{Which result is a success (default = 6)}
 
 \item{agg}{If TRUE, the result is aggregated (by experiment, rounds) (not implemented)}
 
 \item{label}{Custom text to distinguish an experiment, can be used for plotting etc.}
+
+\item{detail}{If TRUE, the result has a column \code{dice} with the dice that were
+rolled for each result: a tibble with the columns \code{group} (position of the
+dice group in the formula), \code{sides}, \code{value} and \code{kept} (FALSE for dice dropped
+by a modifier, e.g. the lowest die in \verb{4d6pl1}). Rerolled dice show their last
+value, and exploded dice are added. plot_dice() draws one die for each of them.
+The column is not created if \code{agg} is TRUE.}
 }
 \value{
 Result of experiment as a tibble
 }
 \description{
 Simulating rolling a dice, using a formula
+}
+\details{
+The syntax is based on \href{https://github.com/avrae/d20}{Avrae's d20 library}.
+Spaces and case are ignored.
+
+\strong{Dice}: \code{NdS} rolls N dice with S sides (\code{d6} = \verb{1d6}, \verb{d\%} = \code{d100}).
+Dice can be combined with numbers using \verb{+ - * / ^},
+parentheses and the usual precedence, e.g. \verb{(2d6+3)*2} or \verb{1d8+1d6+2}.
+
+\strong{Modifiers} follow the dice and are applied in the order they are written.
+Each needs a selector:\tabular{ll}{
+   Modifier \tab Meaning \cr
+   \code{k} \tab keep the dice matching the selector, drop the others \cr
+   \code{p} \tab drop the dice matching the selector \cr
+   \code{rr} \tab reroll dice matching the selector, until none match \cr
+   \code{ro} \tab reroll dice matching the selector once \cr
+   \code{ra} \tab roll one extra die (once) if a die matches the selector \cr
+   \code{e} \tab explode: roll an extra die for each die matching the selector, \cr
+   and repeat for the new dice \tab  \cr
+   \code{mi} \tab minimum: dice below the number are raised to it \cr
+   \code{ma} \tab maximum: dice above the number are lowered to it \cr
+}
+
+
+\strong{Selectors}: \code{N} (equal to N), \verb{<N} (less than N), \verb{>N} (greater than N),
+\code{hN} (the N highest dice) and \code{lN} (the N lowest dice). Several selectors can
+be combined (\verb{k>3<2}), and so can consecutive identical modifiers
+(\code{e5e6} is the same as \code{e5>5}). \code{mi} and \code{ma} only take a plain number.
+Only the dice that are not dropped can be selected.
+
+Not supported (yet): comments, lists of numbers like \verb{(1,2,3)kh1},
+functions, \verb{//} and \verb{\%} operators. Invalid syntax is an error.
+There is no limit to the number of dice (Avrae stops at 1000), but formulas
+that would never end are an error: \code{rr} with \code{h} or \code{l} (the highest dice are
+always there to be rerolled), and rerolling (\code{rr}) or exploding (\code{e}) on sides
+that hold all the probability of an unfair dice. Dice that almost always explode
+(e.g. a 99.999\% chance) take a very long time.
 }
 \examples{
 # roll one 6-sided dice
@@ -62,6 +112,30 @@ roll_dice_formula(dice_formula = "3d6kl2")
 
 # roll four 6-sided dice, keep highest 3 rolls, but explode on a 6
 roll_dice_formula(dice_formula = "4d6kh3e6")
+
+# explode on 5 or 6 (">" and "<" are strict, as in Avrae)
+roll_dice_formula(dice_formula = "2d6e>4")
+
+# roll four 6-sided dice, drop the lowest, like for D&D abilities
+roll_dice_formula(dice_formula = "4d6pl1")
+
+# reroll 1s until they are gone, reroll 2s once
+roll_dice_formula(dice_formula = "3d6rr1ro2")
+
+# minimum of 2 on each dice
+roll_dice_formula(dice_formula = "4d6mi2")
+
+# more than one group of dice
+roll_dice_formula(dice_formula = "1d8+1d6+2")
+
+# unfair dice: the 6 is twice as likely as any other side
+roll_dice_formula(dice_formula = "3d6", prob = c(1, 1, 1, 1, 1, 2))
+
+# unfair d6 plus fair d4
+roll_dice_formula(dice_formula = "1d6+1d4", prob = list(c(1, 1, 1, 1, 1, 5), NULL))
+
+# keep the dice that were rolled, e.g. to plot them
+roll_dice_formula(dice_formula = "4d6pl1", times = 2, detail = TRUE)$dice
 
 # roll one 20-sided dice, and add 4
 roll_dice_formula(dice_formula = "1d20+4")

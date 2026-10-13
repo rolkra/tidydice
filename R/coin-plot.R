@@ -1,7 +1,7 @@
 #' Draw a single coin
 #'
 #' @param ggplot ggplot-Object. If passed, the dice will be added to plot
-#' @param result Result of flip coin (0/1)
+#' @param result Result of flip coin
 #' @param x X-coordinate of dice (center)
 #' @param y y-coordinate of dice (center)
 #' @param width Width of coin
@@ -9,12 +9,13 @@
 #' @param detailed If TRUE, the dice is plotted with more details
 #' @param line_size Size of Lines
 #' @param line_color Color of Lines
+#' @param show_result If TRUE, the result is written on the coin
 #' @return ggplot-Object 
 #' @importFrom magrittr "%>%"
 #' @import dplyr
 #' @import ggplot2
 
-plot_single_coin <- function(ggplot = NULL, result = 1, x = 0, y = 0, width = 0.9, fill = "white", detailed = FALSE, line_size = 0.8, line_color = "black")  {
+plot_single_coin <- function(ggplot = NULL, result = 1, x = 0, y = 0, width = 0.9, fill = "white", detailed = FALSE, line_size = 0.8, line_color = "black", show_result = FALSE)  {
   
   circle <- circle_points(diameter = width,
                           center = c(x + width/2, y + width/2))
@@ -24,12 +25,20 @@ plot_single_coin <- function(ggplot = NULL, result = 1, x = 0, y = 0, width = 0.
     # plot dice  
     p <- ggplot +
       geom_polygon(data = circle, aes(x,y), 
-                   color = line_color, fill = fill, size = line_size) 
+                   color = line_color, fill = fill, linewidth = line_size) 
   } else  {
     # add plot dice  
     p <- ggplot() +
-      geom_polygon(data = circle, aes(x,y,), color = line_color, fill = fill, size = line_size) 
+      geom_polygon(data = circle, aes(x,y,), color = line_color, fill = fill, linewidth = line_size) 
   } #if  
+  
+  # write the result on the coin
+  if (show_result) {
+    label <- NULL # to pass CRAN checks
+    p <- p + geom_text(data = data.frame(x = x + width/2, y = y + width/2, 
+                                         label = format(round(result, 2))),
+                       aes(x, y, label = label), color = line_color, size = 3.5)
+  }
   
   # return ggplot object
   p
@@ -45,6 +54,7 @@ plot_single_coin <- function(ggplot = NULL, result = 1, x = 0, y = 0, width = 0.
 #' @param fill_success Fill color if result is a success
 #' @param line_color Color of Lines
 #' @param line_size Size of Lines
+#' @param show_result If TRUE (default), the result is written on each coin
 #' @return ggplot-Object 
 #' @importFrom magrittr "%>%"
 #' @import dplyr
@@ -64,7 +74,7 @@ plot_single_coin <- function(ggplot = NULL, result = 1, x = 0, y = 0, width = 0.
 #'   plot_coin(fill_success = "red")
 #' @export
 
-plot_coin <- function(data, detailed = FALSE, fill = "white", fill_success = "gold", line_color = "black", line_size = 0.8)  {
+plot_coin <- function(data, detailed = FALSE, fill = "white", fill_success = "gold", line_color = "black", line_size = 0.8, show_result = TRUE)  {
   
   # check data
   if (missing(data))  {
@@ -112,7 +122,8 @@ plot_coin <- function(data, detailed = FALSE, fill = "white", fill_success = "go
                                    y = pos_y,
                                    detailed = detailed,
                                    fill = ifelse(tmp$success[[i]],fill_success,fill),
-                                   line_color = line_color)
+                                   line_color = line_color,
+                                   show_result = show_result)
       pos_x <- pos_x + 1
       
     } # for i

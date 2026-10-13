@@ -1,101 +1,87 @@
-#' Helper function to parse a dice formula 
-#'
-#' @param dice_formula_part A split dice formula, e.g. 1d6e2. For more complex formula, e.g. 1d6e2+3d4, see parse_dice_formula
-#' @import dplyr
-#' @import stringr
-
-parse_dice_formula_part <- function(dice_formula_part){
-
-  # define variables to pass CRAN checks
-  value <- NULL
-
-  dice_base = str_match_all(
-    string=dice_formula_part,
-    pattern="^([+-/*]?)(\\d*)?([dD]*)(\\d*)") 
-  
-  dice_base <- dice_base[[1]]
-  
-  dice_base <- dice_base %>% 
-    tibble::as_tibble(.name_repair="minimal") %>%
-    purrr::set_names(c("raw_set", "sign", "operator", "selector", "value")) %>%
-    mutate(value=as.numeric(value)) %>%
-    select(-sign) %>%
-    mutate(
-      value = case_when(
-        is.na(value) ~ as.numeric(operator),
-        T ~ value),
-      operator = case_when(
-        operator == "" ~ "1",
-        T ~ operator
-      )
-    )
-
-  dice_filters = str_match_all(
-    string=dice_formula_part, 
-    pattern="([kKeEpP]|rr|ro|ra|mi|ma)([HhlL><]*)(\\d*)") 
-  
-  dice_filters <- dice_filters[[1]]
-  
-  dice_filters <- dice_filters %>% 
-    tibble::as_tibble(.name_repair="minimal") %>%
-    purrr::set_names(c("raw_set", "operator", "selector", "value")) %>%
-    mutate(value=as.numeric(value))
-  
-  bind_rows(
-    dice_base,
-    dice_filters
-  ) 
-}
-
 #' Given a dice formula string, split it and return a dataframe with the list 
-#' of functions.
+#' of its parts.
 #'
-#' This is the main function to parse a string containing complex formula 
-#' specifications for rolling dice.
+#' This parses a dice formula with the same parser as [roll_dice_formula()], 
+#' see there for the syntax. It returns a tibble with one or more rows for each
+#' group (a number, or dice with their modifiers) of the formula:
+#' 
+#' - `subgroup_id`: position of the group in the formula
+#' - `subgroup_formula`: the group, with the operator before it (`+` for the first one)
+#' - `subgroup_sign`: the operator before the group (`+ - * / ^ **`)
+#' - `raw_set`: the text of one part of the group, e.g. `4d6`, `e6` or `kh3`
+#' - `operator`, `selector`, `value`: the part, split. For the dice itself, 
+#'   `operator` is the number of dice, `selector` is `d` and `value` the number
+#'   of sides. For a modifier, `operator` is the modifier (e.g. `k`), 
+#'   `selector` is `h`, `l`, `<`, `>` or empty and `value` its number. 
+#'   A modifier with several selectors, or repeated modifiers, 
+#'   get one row for each selector (`e5e6`, `k>3<2`).
+#'   For a plain number, `operator` is the number and `value` too.
+#' 
+#' The groups are listed from left to right, without the precedence of 
+#' the operators and the parentheses: `(1d6+2)*3` returns the groups `1d6`, 
+#' `+2` and `*3`. 
 #' 
 #' The input can be a string containing specifications for multiple dice, e.g.:
 #' - 1d6e6          -> roll 1 six-sided dice, explode on 6
 #' - 1d6e6+2d4-1d10 -> Roll 1 six-sided dice, explode on 6, plus two 4-sided 
 #'                    dice, subract one 10-sided dice
 #' 
-#' 
 #' This is inspired by Avrae's bot syntax for rolling dice. See https://github.com/avrae/d20
 #' 
-#' @param dice_formula A string containing a dice formula, e.g. 1d6e2+1d4
-#' @importFrom tidyr unnest
-#' @importFrom tibble tibble rownames_to_column
-#' @import stringr
+#' @param dice_formula A string containing a dice formula, e.g. 1d6e6+1d4
+#' @return A tibble
+#' @importFrom tibble tibble
 #' @export
+#' @examples
+#' parse_dice_formula("4d6e6kh3+2")
+#' parse_dice_formula("1d8+1d6-1")
 
 parse_dice_formula <- function(dice_formula) {
 
-  # define variables to pass CRAN checks
-  subgroup_formula <- NULL
-  subgroup_sign <- NULL
-  subgroup_id <- NULL
-  parts <- NULL
+  assertthat::assert_that(is.character(dice_formula) && length(dice_formula) == 1, 
+                          msg = "dice_formula must be a single character string")
+  tree <- parse_dice_expression(dice_formula, require_dice = FALSE, validate = FALSE)
   
-  # To simplify Regex parsing, Remove whitespaces and add a default "+"
-  dice_formula = str_replace_all(dice_formula, "\\s", "")
-  dice_formula = 
-    ifelse(is.na(str_match(dice_formula, "^[+-/*]")[1]), 
-                        paste0("+", dice_formula),
-                        dice_formula)
+  groups <- flatten_dice_expression(tree)
   
-  # Split dice_formula, then parse each substring
-  tibble::tibble(subgroup_formula = str_split(dice_formula, 
-        "([+-/*])", simplify=T)[-1],
-        subgroup_sign = str_extract_all(dice_formula, "([+-/*])")[[1]]) %>%
-      unnest(c(subgroup_formula, subgroup_sign)) %>%
-      tibble::rownames_to_column("subgroup_id") %>%
-      rowwise %>% 
-      mutate(
-         parts = list(parse_dice_formula_part(subgroup_formula))) %>% 
-      mutate(
-        subgroup_id = as.integer(subgroup_id), 
-        subgroup_formula = paste0(subgroup_sign, subgroup_formula)) %>%
-      unnest(parts)
+  parts <- lapply(seq_along(groups), function(i) {
+    group <- groups[[i]]
+    node <- group$node
+    
+    if (node$type == "num") {
+      rows <- tibble::tibble(raw_set = node$text, operator = node$text, 
+                             selector = "", value = node$value)
+    } else {
+      rows <- tibble::tibble(
+        raw_set = c(node$base_text, 
+                    vapply(node$raw_mods, function(m) paste0(m$op, m$cat, m$num), 
+                           character(1))),
+        operator = c(as.character(node$count), 
+                     vapply(node$raw_mods, function(m) m$op, character(1))),
+        selector = c("d", vapply(node$raw_mods, function(m) m$cat, character(1))),
+        value = c(node$sides, vapply(node$raw_mods, function(m) m$num, numeric(1))))
+    }
+    
+    tibble::tibble(subgroup_id = i, 
+                   subgroup_formula = paste0(group$sign, node$text),
+                   subgroup_sign = group$sign) %>%
+      dplyr::bind_cols(rows)
+  })
+  
+  dplyr::bind_rows(parts)
+}
 
+# Flatten the tree of an expression into a list of groups (numbers and dice), 
+# each with the operator written before it
+flatten_dice_expression <- function(node, sign = "+") {
+  switch(node$type,
+    neg = flatten_dice_expression(
+      node$x, 
+      sign = switch(sign, "+" = "-", "-" = "+", paste0(sign, "-"))),
+    binop = c(flatten_dice_expression(node$lhs, sign), 
+              flatten_dice_expression(node$rhs, node$op_text)),
+    list(list(sign = sign, node = node))
+  )
 }
 
 # roll_dice_part <- function(current_set = c(), specs=c()){
@@ -104,18 +90,64 @@ parse_dice_formula <- function(dice_formula) {
 
 #' Simulating rolling a dice, using a formula
 #' 
+#' @details
+#' The syntax is based on [Avrae's d20 library](https://github.com/avrae/d20).
+#' Spaces and case are ignored. 
+#' 
+#' **Dice**: `NdS` rolls N dice with S sides (`d6` = `1d6`, `d%` = `d100`). 
+#' Dice can be combined with numbers using `+ - * / ^`, 
+#' parentheses and the usual precedence, e.g. `(2d6+3)*2` or `1d8+1d6+2`. 
+#' 
+#' **Modifiers** follow the dice and are applied in the order they are written.
+#' Each needs a selector:
+#' 
+#' | Modifier | Meaning |
+#' |:--|:--|
+#' | `k` | keep the dice matching the selector, drop the others |
+#' | `p` | drop the dice matching the selector |
+#' | `rr` | reroll dice matching the selector, until none match |
+#' | `ro` | reroll dice matching the selector once |
+#' | `ra` | roll one extra die (once) if a die matches the selector |
+#' | `e` | explode: roll an extra die for each die matching the selector, 
+#' and repeat for the new dice |
+#' | `mi` | minimum: dice below the number are raised to it |
+#' | `ma` | maximum: dice above the number are lowered to it |
+#' 
+#' **Selectors**: `N` (equal to N), `<N` (less than N), `>N` (greater than N), 
+#' `hN` (the N highest dice) and `lN` (the N lowest dice). Several selectors can 
+#' be combined (`k>3<2`), and so can consecutive identical modifiers 
+#' (`e5e6` is the same as `e5>5`). `mi` and `ma` only take a plain number.
+#' Only the dice that are not dropped can be selected.
+#' 
+#' Not supported (yet): comments, lists of numbers like `(1,2,3)kh1`, 
+#' functions, `//` and `%` operators. Invalid syntax is an error.
+#' There is no limit to the number of dice (Avrae stops at 1000), but formulas 
+#' that would never end are an error: `rr` with `h` or `l` (the highest dice are 
+#' always there to be rerolled), and rerolling (`rr`) or exploding (`e`) on sides 
+#' that hold all the probability of an unfair dice. Dice that almost always explode
+#' (e.g. a 99.999% chance) take a very long time.
+#' 
 #' @param data Data from a previous experiment
-#' @param dice_formula Dice formula (e.g. "1d6" = 1 dice with 6 sides)
+#' @param dice_formula Dice formula (e.g. "1d6" = 1 dice with 6 sides). 
+#'   The syntax follows Avrae's dice bot (see Details).
 #' @param times How many times a dice is rolled (or how many dice are rolled at the same time)
 #' @param rounds Number of rounds 
 #' @param success Which result is a success (default = 6)
 #' @param agg If TRUE, the result is aggregated (by experiment, rounds) (not implemented)
-#' @param prob Vector of probabilities for each side of the dice
+#' @param prob Vector of probabilities for each side of the dice (unfair dice). 
+#'   A vector is used for all the dice of the formula, so all of them need the 
+#'   same number of sides. To mix dice, use a list with one vector 
+#'   for each group of dice, from left to right (`NULL` = fair dice), 
+#'   e.g. `prob = list(c(.5, .1, .1, .1, .1, .1), NULL)` for `"1d6+1d4"`.
 #' @param seed Seed to produce reproducible results
 #' @param label Custom text to distinguish an experiment, can be used for plotting etc.
+#' @param detail If TRUE, the result has a column `dice` with the dice that were 
+#'   rolled for each result: a tibble with the columns `group` (position of the 
+#'   dice group in the formula), `sides`, `value` and `kept` (FALSE for dice dropped 
+#'   by a modifier, e.g. the lowest die in `4d6pl1`). Rerolled dice show their last 
+#'   value, and exploded dice are added. plot_dice() draws one die for each of them.
+#'   The column is not created if `agg` is TRUE.
 #' @return Result of experiment as a tibble
-#' @import stringr
-#' @importFrom stats rgeom
 #' @export
 #' @examples
 #' # roll one 6-sided dice
@@ -139,6 +171,30 @@ parse_dice_formula <- function(dice_formula) {
 #' # roll four 6-sided dice, keep highest 3 rolls, but explode on a 6
 #' roll_dice_formula(dice_formula = "4d6kh3e6")
 #' 
+#' # explode on 5 or 6 (">" and "<" are strict, as in Avrae)
+#' roll_dice_formula(dice_formula = "2d6e>4")
+#' 
+#' # roll four 6-sided dice, drop the lowest, like for D&D abilities
+#' roll_dice_formula(dice_formula = "4d6pl1")
+#' 
+#' # reroll 1s until they are gone, reroll 2s once
+#' roll_dice_formula(dice_formula = "3d6rr1ro2")
+#' 
+#' # minimum of 2 on each dice
+#' roll_dice_formula(dice_formula = "4d6mi2")
+#' 
+#' # more than one group of dice
+#' roll_dice_formula(dice_formula = "1d8+1d6+2")
+#' 
+#' # unfair dice: the 6 is twice as likely as any other side
+#' roll_dice_formula(dice_formula = "3d6", prob = c(1, 1, 1, 1, 1, 2))
+#' 
+#' # unfair d6 plus fair d4
+#' roll_dice_formula(dice_formula = "1d6+1d4", prob = list(c(1, 1, 1, 1, 1, 5), NULL))
+#' 
+#' # keep the dice that were rolled, e.g. to plot them
+#' roll_dice_formula(dice_formula = "4d6pl1", times = 2, detail = TRUE)$dice
+#' 
 #' # roll one 20-sided dice, and add 4
 #' roll_dice_formula(dice_formula = "1d20+4")
 #' 
@@ -153,7 +209,8 @@ roll_dice_formula <- function(data=NULL,
                               prob=NULL, 
                               success = c(6),
                               agg=FALSE,
-                              label=NULL
+                              label=NULL,
+                              detail=FALSE
                               ) {
   assertthat::assert_that(is.character(dice_formula), msg = "dice_formula must be character")
 
@@ -177,110 +234,32 @@ roll_dice_formula <- function(data=NULL,
     assertthat::assert_that(times > 0)
   }
 
+  assertthat::assert_that(is.character(dice_formula) && length(dice_formula) == 1, 
+                          msg = "dice_formula must be a single character string")
+  assertthat::assert_that(is.numeric(times) && length(times) == 1 && times >= 1, 
+                          msg = "times must be a number >= 1")
+  assertthat::assert_that(is.numeric(rounds) && length(rounds) == 1 && rounds >= 1, 
+                          msg = "rounds must be a number >= 1")
+
   # define variables to pass CRAN checks
-  result_m <- NULL
   result <- NULL
   experiment_id <- NULL
   experiment <- NULL
   nr <- NULL
   
-  # Parse Dice Type (1d6)
-  dicestr1 = str_match(string=dice_formula, pattern="(\\d*)?[dD](\\d*)")
-  assertthat::assert_that(is.character(dicestr1[1,1]), 
-                          msg = "dice_formula need to contain at least one d statement")
-  dice_count  = as.numeric(dicestr1[1,2])
-  if (is.na(dice_count)) {dice_count = 1}
-  dice_sides  = as.numeric(dicestr1[1,3])
-  dice_intervals = 1:dice_sides
-  assertthat::assert_that(dice_count >= 1, 
-                          msg = "cannot roll 0 dice!")
-  assertthat::assert_that(dice_sides >= 1, 
-                          msg = "cannot roll a d0!")
+  # Parse the formula (see dice-eval.R), then roll it
+  dice_expression <- parse_dice_expression(dice_formula)
   
-  
-  # Parse Exploding Dice
-  dicestr_expl = str_match(string=dice_formula, pattern="[eE](\\d*)")
-  dice_exploding_number  = as.numeric(dicestr_expl[1,2])
-  dice_intervals = setdiff(dice_intervals, dice_exploding_number)
-  if (!is.na(dice_exploding_number)) {
-    assertthat::assert_that(dice_exploding_number <= dice_sides, 
-                            msg = "invalid exploding dice specification")
-    assertthat::assert_that(!((dice_exploding_number == 1) & (dice_sides  %in% 1:2)), 
-                            msg = "1d1e1 and 1d2e1 not implemented")
-  } else {
-    dice_exploding_number = 0
-  }
-  
-  # Parse Keep Higher/Lower
-  dice_khl = str_match(string=dice_formula, pattern="[kK]([HhlL])(\\d*)")
-  dice_khl_sign = case_when(
-    is.na(dice_khl[1,2]) ~ T,
-    dice_khl[1,2] %in% c("h", "H") ~ T,
-    dice_khl[1,2] %in% c("l", "L") ~ F
+  result <- eval_dice_expression(dice_expression, n = rounds * times, prob = prob, 
+                                 detail = detail && !agg)
+  result_df <- tibble::tibble(
+    round = as.integer(rep(1:rounds, each = times)),
+    nr    = as.integer(rep(1:times, times = rounds)),
+    result = as.vector(result)
   )
-  dice_khl_n = as.numeric(ifelse(is.na(dice_khl[1,3]), dice_count, dice_khl[1,3]))
-  assertthat::assert_that(dice_khl_n <= dice_count, 
-                          msg = "invalid kh/kl formula, can't keep more dice than rolled")
-  assertthat::assert_that(dice_khl_n > 0, 
-                          msg = "invalid kh/kl formula, can't keep less than 1 die")
-
-  # Parse [+-*/]
-  dice_op = str_match(string=dice_formula, pattern="\\s*([+-/*^][*]*)\\s*(\\d*)")
-  dice_op_sign = dice_op[1,2]
-  dice_op_n = as.numeric(dice_op[1,3])
-
-    result_df <- tibble::tibble(
-      round = as.integer(rep(1:rounds, each = times)),
-      nr    = as.integer(rep(1:times, times = rounds)),
-      result_t = 
-        tibble(
-          round = as.integer(rep(1:rounds, each = times)),
-          nr    = as.integer(rep(1:times, times = rounds)),
-          diceroll = list(
-            c(
-              sample( x = dice_intervals, size=dice_count, replace=T), 
-              rep(dice_exploding_number, times = dice_exploding_number * stats::rgeom(1, 1-1/2))
-            )
-        )),
-      result_m =
-        matrix(
-          sample(x = dice_intervals, 
-                 size = dice_count * rounds * times, 
-                 replace = TRUE,
-                 prob=prob
-          ), 
-          ncol=dice_count),
-      result = apply(
-            result_m,
-                1,
-                top_n_dice, n=dice_khl_n, dec=dice_khl_sign
-                )
-              ) 
-    if (!is.na(dice_exploding_number)){
-      # Exploding Dice is implemented using a Geom distribution to predict the number of outcomes
-      result_df = result_df %>% 
-        mutate(result = 
-                 result + 
-                 dice_exploding_number * 
-                 rowSums(
-                  matrix(
-                    rgeom(dice_count*nrow(result_df), 1-1/dice_sides), # this prob is wrong, it should scale with the n of dice
-                    ncol=dice_count)
-                  )
-               )
-    }
-    # arithmetic operations
-    result_df = result_df %>%
-      mutate(
-        result = case_when(
-          dice_op_sign == "+" ~ result + dice_op_n,
-          dice_op_sign == "-" ~ result - dice_op_n,
-          dice_op_sign == "*" ~ result * dice_op_n,
-          dice_op_sign == "/" ~ result / dice_op_n,
-          dice_op_sign %in% c("^", "**") ~ result ** dice_op_n,
-          T ~ as.numeric(result),
-        )
-      )
+  if (!is.null(attr(result, "dice"))) {
+    result_df$dice <- attr(result, "dice")
+  }
       
   # Compute success
   result_df = result_df %>%
@@ -291,9 +270,10 @@ roll_dice_formula <- function(data=NULL,
     mutate(experiment_id = 1,
            dice_formula = dice_formula,
            label=label) %>%
-    select(experiment_id, dice_formula, label, round, nr, result, success, -result_m) 
+    select(experiment_id, dice_formula, label, round, nr, result, success, 
+           dplyr::any_of("dice")) 
   
-  if (missing(data))  {
+  if (!is.data.frame(data))  {
     
     # result of roll_dice (first experiment)
     result_df <- result_df %>% 
@@ -334,14 +314,4 @@ roll_dice_formula <- function(data=NULL,
   # return data frame
   result_df
   
-}
-
-#' Helper function to get sum of top n dice 
-#'
-#' @param x Vector of dice-values
-#' @param n Number of dice
-#' @param dec Decreasing
-
-top_n_dice = function(x, n, dec=F) {
-  sum(x[order(x, decreasing = dec)][1:n], na.rm=T)
 }

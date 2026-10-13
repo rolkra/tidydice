@@ -6,12 +6,17 @@
 #' @param times How many times a dice is rolled (or how many dice are rolled at the same time)
 #' @param success Which result is a success (default = 6)
 #' @param sides Number of sides of the dice (default = 6)
+#' @param prob Vector of probabilities for each side of the dice (unfair dice), 
+#'   like in roll_dice(). Default is a fair dice.
 #' @return Binomial distribution as a tibble
 #' @examples
 #' binom_dice(times = 10)
+#' 
+#' # unfair dice: the 6 is twice as likely as any other side
+#' binom_dice(times = 10, prob = c(1, 1, 1, 1, 1, 2))
 #' @export
 
-binom_dice <- function(times, sides = 6, success = 6) {
+binom_dice <- function(times, sides = 6, success = 6, prob = NULL) {
   
   # check if meaningful parameters
   assertthat::assert_that(is.numeric(times), msg = "times must be numeric")
@@ -27,13 +32,24 @@ binom_dice <- function(times, sides = 6, success = 6) {
   sides <- floor(sides)
   success <- floor(success)
   
-  # prepare binomial
-  n_success <- sum(success <= sides)
+  # probability of a success: the sides that are a success (once each) 
+  # divided by all the sides, or weighted by the probability of the sides
+  success_sides <- unique(success[success >= 1 & success <= sides])
+  if (is.null(prob)) {
+    prob_success <- length(success_sides) / sides
+  } else {
+    assertthat::assert_that(is.numeric(prob), msg = "prob must be numeric")
+    assertthat::assert_that(length(prob) == sides, 
+                            msg = "prob must contain a probability for each side")
+    assertthat::assert_that(all(is.finite(prob)) && all(prob >= 0) && sum(prob) > 0,
+                            msg = "prob must be positive")
+    weights <- prob / max(prob) # avoid overflow when finite weights are large
+    prob_success <- sum(weights[success_sides]) / sum(weights)
+  }
   
   # binomial distribution
   x_seq <- 0:times
-  #p <- purrr::map_dbl(x_seq, ~dbinom(size = times, x =  .x, p = n_success/sides))  
-  p <- stats::dbinom(size = times, x = x_seq, prob = n_success/sides)
+  p <- stats::dbinom(size = times, x = x_seq, prob = prob_success)
   tbl <- tibble::tibble(success = x_seq, p = p, pct = p *100)
   
   # return result
@@ -49,14 +65,19 @@ binom_dice <- function(times, sides = 6, success = 6) {
 #' @param times how many times a coin is flipped (or how many coins are flipped at the same time)
 #' @param success which result is a success (default = 2)
 #' @param sides number of sides of the coin (default = 2)
+#' @param prob vector of probabilities for each side of the coin (unfair coin), 
+#'   like in flip_coin(). Default is a fair coin.
 #' @return binomial distribution as a tibble
 #' @examples
 #' binom_coin(times = 10)
+#' 
+#' # unfair coin: 70% chance of a 2
+#' binom_coin(times = 10, prob = c(0.3, 0.7))
 #' @export
 
-binom_coin <- function(times, sides = 2, success = 2) {
+binom_coin <- function(times, sides = 2, success = 2, prob = NULL) {
   
-  binom_dice(times, sides, success)
+  binom_dice(times, sides, success, prob)
   
 } # binom_coin 
 

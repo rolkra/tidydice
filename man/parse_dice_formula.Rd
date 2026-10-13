@@ -3,18 +3,40 @@
 \name{parse_dice_formula}
 \alias{parse_dice_formula}
 \title{Given a dice formula string, split it and return a dataframe with the list
-of functions.}
+of its parts.}
 \usage{
 parse_dice_formula(dice_formula)
 }
 \arguments{
-\item{dice_formula}{A string containing a dice formula, e.g. 1d6e2+1d4}
+\item{dice_formula}{A string containing a dice formula, e.g. 1d6e6+1d4}
+}
+\value{
+A tibble
 }
 \description{
-This is the main function to parse a string containing complex formula
-specifications for rolling dice.
+This parses a dice formula with the same parser as \code{\link[=roll_dice_formula]{roll_dice_formula()}},
+see there for the syntax. It returns a tibble with one or more rows for each
+group (a number, or dice with their modifiers) of the formula:
 }
 \details{
+\itemize{
+\item \code{subgroup_id}: position of the group in the formula
+\item \code{subgroup_formula}: the group, with the operator before it (\code{+} for the first one)
+\item \code{subgroup_sign}: the operator before the group (\verb{+ - * / ^ **})
+\item \code{raw_set}: the text of one part of the group, e.g. \verb{4d6}, \code{e6} or \code{kh3}
+\item \code{operator}, \code{selector}, \code{value}: the part, split. For the dice itself,
+\code{operator} is the number of dice, \code{selector} is \code{d} and \code{value} the number
+of sides. For a modifier, \code{operator} is the modifier (e.g. \code{k}),
+\code{selector} is \code{h}, \code{l}, \code{<}, \code{>} or empty and \code{value} its number.
+A modifier with several selectors, or repeated modifiers,
+get one row for each selector (\code{e5e6}, \verb{k>3<2}).
+For a plain number, \code{operator} is the number and \code{value} too.
+}
+
+The groups are listed from left to right, without the precedence of
+the operators and the parentheses: \verb{(1d6+2)*3} returns the groups \verb{1d6},
+\code{+2} and \verb{*3}.
+
 The input can be a string containing specifications for multiple dice, e.g.:
 \itemize{
 \item 1d6e6          -> roll 1 six-sided dice, explode on 6
@@ -23,4 +45,8 @@ dice, subract one 10-sided dice
 }
 
 This is inspired by Avrae's bot syntax for rolling dice. See https://github.com/avrae/d20
+}
+\examples{
+parse_dice_formula("4d6e6kh3+2")
+parse_dice_formula("1d8+1d6-1")
 }

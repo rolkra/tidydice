@@ -18,7 +18,7 @@ Description: Utils for basic statistical experiments, that can be used for teach
 License: GPL-3
 Encoding: UTF-8
 URL: http://github.com/rolkra/tidydice
-Imports: assertthat, dplyr, ggplot2, magrittr, purrr, stats, stringr, tibble, tidyr
+Imports: assertthat, dplyr, ggplot2 (>= 3.4.0), magrittr, purrr, stats, tibble
 RoxygenNote: 7.2.1
 Suggests: 
     explore, knitr, rmarkdown, testthat

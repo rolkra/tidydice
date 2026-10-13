@@ -4,7 +4,7 @@
 \alias{binom_dice}
 \title{Binomial distribution of rolling a dice.}
 \usage{
-binom_dice(times, sides = 6, success = 6)
+binom_dice(times, sides = 6, success = 6, prob = NULL)
 }
 \arguments{
 \item{times}{How many times a dice is rolled (or how many dice are rolled at the same time)}
@@ -12,6 +12,9 @@ binom_dice(times, sides = 6, success = 6)
 \item{sides}{Number of sides of the dice (default = 6)}
 
 \item{success}{Which result is a success (default = 6)}
+
+\item{prob}{Vector of probabilities for each side of the dice (unfair dice),
+like in roll_dice(). Default is a fair dice.}
 }
 \value{
 Binomial distribution as a tibble
@@ -22,4 +25,7 @@ using dbinom().
 }
 \examples{
 binom_dice(times = 10)
+
+# unfair dice: the 6 is twice as likely as any other side
+binom_dice(times = 10, prob = c(1, 1, 1, 1, 1, 2))
 }
